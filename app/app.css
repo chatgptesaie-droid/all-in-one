@@ -1,15 +1,51 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+* {
+  box-sizing: border-box;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d3748;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a5568;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer;
+  @apply bg-red-700 text-white hover:bg-red-600;
+  @apply disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer;
+  @apply bg-[#1e1e2a] text-gray-300 border border-gray-700 hover:bg-[#252535] hover:border-gray-600;
+}
+
+.btn-danger {
+  @apply inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer;
+  @apply bg-transparent text-red-400 border border-red-800/60 hover:bg-red-950/40;
 }
