@@ -14,7 +14,15 @@ export async function action({ request }: { request: Request }) {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  const { cookies: cookieText } = await request.json();
+  const body = (await request.json()) as {
+    cookies?: string;
+    start?: number;
+    limit?: number;
+  };
+
+  const cookieText = body.cookies;
+  const start = typeof body.start === "number" && Number.isFinite(body.start) ? body.start : 0;
+  const limit = typeof body.limit === "number" && Number.isFinite(body.limit) ? body.limit : 50;
 
   if (!cookieText || typeof cookieText !== "string") {
     return new Response(
@@ -35,26 +43,45 @@ export async function action({ request }: { request: Request }) {
     );
   }
 
+  const totalBatches = batches.length;
+  const startIndex = Number.isFinite(start) ? Math.max(0, Math.min(start, totalBatches)) : 0;
+  const chunkSize = Number.isFinite(limit) ? Math.max(1, Math.min(limit, 100)) : 50;
+  const endIndex = Math.min(totalBatches, startIndex + chunkSize);
+
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
 
       controller.enqueue(
-        encoder.encode(
-          JSON.stringify({ type: "init", total: batches.length }) + "\n"
-        )
+        encoder.encode(JSON.stringify({ type: "init", total: totalBatches }) + "\n")
       );
 
       let validCount = 0;
       let invalidCount = 0;
 
-      for (let i = 0; i < batches.length; i++) {
+      if (startIndex >= totalBatches) {
+        controller.enqueue(
+          encoder.encode(
+            JSON.stringify({
+              type: "done",
+              total: totalBatches,
+              valid: validCount,
+              invalid: invalidCount,
+              nextStart: totalBatches,
+              finished: true,
+            }) + "\n"
+          )
+        );
+        controller.close();
+        return;
+      }
+
+      for (let i = startIndex; i < endIndex; i++) {
         if (request.signal.aborted) break;
 
         try {
           const result = await validateCookieBatch(batches[i]);
 
-          // Translate plan name if present
           if (result.accountInfo?.planName) {
             result.accountInfo.planName = translatePlan(
               result.accountInfo.planName as string
@@ -67,7 +94,7 @@ export async function action({ request }: { request: Request }) {
             invalidCount++;
           }
 
-          const progress = Math.round(((i + 1) / batches.length) * 100);
+          const progress = Math.round(((i + 1) / totalBatches) * 100);
 
           controller.enqueue(
             encoder.encode(
@@ -88,14 +115,13 @@ export async function action({ request }: { request: Request }) {
                   accountInfo: {},
                   netscapeFormat: "",
                 },
-                progress: Math.round(((i + 1) / batches.length) * 100),
+                progress: Math.round(((i + 1) / totalBatches) * 100),
               }) + "\n"
             )
           );
           invalidCount++;
         }
 
-        // Delai pour eviter le rate limiting Netflix
         await new Promise((resolve) => setTimeout(resolve, 800));
       }
 
@@ -103,9 +129,11 @@ export async function action({ request }: { request: Request }) {
         encoder.encode(
           JSON.stringify({
             type: "done",
-            total: batches.length,
+            total: totalBatches,
             valid: validCount,
             invalid: invalidCount,
+            nextStart: endIndex,
+            finished: endIndex >= totalBatches,
           }) + "\n"
         )
       );

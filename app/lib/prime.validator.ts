@@ -1,3 +1,5 @@
+import { fetchValidationChunk } from "./validation-client";
+
 type EventCB = (e: { type: string; [k: string]: any }) => void;
 
 type CookieEntry = {
@@ -46,7 +48,7 @@ export function subscribe(cb: EventCB) {
   };
 }
 
-export function startValidation(cookieText: string) {
+export async function startValidation(cookieText: string) {
   if (running) stopValidation();
 
   controller = new AbortController();
@@ -57,66 +59,55 @@ export function startValidation(cookieText: string) {
   statusMessage = "Validation en cours...";
   notify({ type: "start" });
 
-  void (async () => {
-    try {
-      const resp = await fetch("/api/prime", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cookies: cookieText }),
-        signal: controller!.signal,
-      });
+  try {
+    let start = 0;
+    const limit = 20;
+    let finished = false;
 
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({}));
-        throw new Error(err.message || `Erreur serveur: ${resp.status}`);
-      }
-
-      const reader = resp.body?.getReader();
-      if (!reader) throw new Error("Stream non disponible");
-
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const event = JSON.parse(line);
-            if (event.type === "init") {
-              totalBatches = event.total || 0;
-              notify({ type: "init", total: totalBatches });
-            } else if (event.type === "result") {
-              results.push(event.data as ValidationResult);
-              progress = event.progress ?? progress;
-              notify({ type: "result", data: event.data, progress });
-            } else if (event.type === "done") {
+    while (!finished && controller?.signal.aborted === false) {
+      await fetchValidationChunk(
+        "/api/prime",
+        cookieText,
+        start,
+        limit,
+        controller.signal,
+        (event) => {
+          if (event.type === "init") {
+            totalBatches = event.total || totalBatches;
+            notify({ type: "init", total: totalBatches });
+          } else if (event.type === "result") {
+            results.push(event.data as ValidationResult);
+            progress = event.progress ?? progress;
+            notify({ type: "result", data: event.data, progress });
+          } else if (event.type === "done") {
+            start = event.nextStart ?? start + limit;
+            finished = event.finished === true;
+            if (finished) {
               statusMessage = `Termine - ${event.valid} valides, ${event.invalid} invalides`;
               running = false;
               notify({ type: "done", valid: event.valid, invalid: event.invalid });
-            } else if (event.type === "error") {
-              statusMessage = `Erreur: ${event.message}`;
-              notify({ type: "error", message: event.message });
             }
-          } catch {}
+          } else if (event.type === "error") {
+            statusMessage = `Erreur: ${event.message}`;
+            notify({ type: "error", message: event.message });
+          }
         }
+      );
+
+      if (!finished && controller?.signal.aborted) {
+        break;
       }
-    } catch (err) {
-      if ((err as Error).name !== "AbortError") {
-        statusMessage = `Erreur: ${(err as Error).message}`;
-        notify({ type: "error", message: (err as Error).message });
-      }
-    } finally {
-      running = false;
-      controller = null;
-      notify({ type: "stopped" });
     }
-  })();
+  } catch (err) {
+    if ((err as Error).name !== "AbortError") {
+      statusMessage = `Erreur: ${(err as Error).message}`;
+      notify({ type: "error", message: (err as Error).message });
+    }
+  } finally {
+    running = false;
+    controller = null;
+    notify({ type: "stopped" });
+  }
 }
 
 export function stopValidation() {

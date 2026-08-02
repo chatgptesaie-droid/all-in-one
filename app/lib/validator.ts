@@ -1,3 +1,5 @@
+import { fetchValidationChunk } from "./validation-client";
+
 type CookieEntry = {
   domain: string;
   flag: string;
@@ -61,7 +63,6 @@ export function getState() {
 
 export async function startValidation(cookieText: string) {
   if (running) {
-    // already running - stop first
     stopValidation();
   }
 
@@ -74,59 +75,46 @@ export async function startValidation(cookieText: string) {
   notify({ type: "start" });
 
   try {
-    const response = await fetch("/api/validate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cookies: cookieText }),
-      signal: controller.signal,
-    });
+    let start = 0;
+    const limit = 20;
+    let finished = false;
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.message || `Erreur serveur: ${response.status}`);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error("Stream non disponible");
-
-    const decoder = new TextDecoder();
-    let buffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        try {
-          const event = JSON.parse(line);
+    while (!finished && controller?.signal.aborted === false) {
+      await fetchValidationChunk(
+        "/api/validate",
+        cookieText,
+        start,
+        limit,
+        controller.signal,
+        (event) => {
           if (event.type === "init") {
-            totalBatches = event.total || 0;
+            totalBatches = event.total || totalBatches;
             notify({ type: "init", total: totalBatches });
           } else if (event.type === "result") {
             results.push(event.data as ValidationResult);
             progress = event.progress ?? progress;
             notify({ type: "result", data: event.data, progress });
           } else if (event.type === "done") {
-            statusMessage = `Termine - ${event.valid} valides, ${event.invalid} invalides`;
-            running = false;
-            notify({ type: "done", valid: event.valid, invalid: event.invalid });
-            // persist valid results
-            try {
-              const valid = getValidResults();
-              window.localStorage.setItem("netflix-validator-valid-results", JSON.stringify(valid));
-            } catch {}
+            start = event.nextStart ?? start + limit;
+            finished = event.finished === true;
+            if (event.finished) {
+              statusMessage = `Termines - ${event.valid} valides, ${event.invalid} invalides`;
+              running = false;
+              notify({ type: "done", valid: event.valid, invalid: event.invalid });
+              try {
+                const valid = getValidResults();
+                window.localStorage.setItem("netflix-validator-valid-results", JSON.stringify(valid));
+              } catch {}
+            }
           } else if (event.type === "error") {
             statusMessage = `Erreur: ${event.message}`;
             notify({ type: "error", message: event.message });
           }
-        } catch {
-          // ignore malformed lines
         }
+      );
+
+      if (!finished && controller?.signal.aborted) {
+        break;
       }
     }
   } catch (err) {
