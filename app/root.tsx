@@ -31,7 +31,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <html lang="fr" className="dark">
+    <html lang="fr">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -39,12 +39,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="bg-gray-900 text-white">
-        <div className="border-b border-gray-800">
-          <nav className="max-w-[1800px] mx-auto px-3 py-3 sm:px-6">
+        <div className="border-b border-gray-800/60 bg-[#0b0b11]">
+          <nav className="max-w-7xl mx-auto px-3 py-3 sm:px-6">
             <div className="flex items-center justify-between">
               <button
                 type="button"
-                className="inline-flex items-center justify-center rounded-lg border border-gray-700 bg-[#111118] p-2 text-gray-300 sm:hidden"
+                className="inline-flex items-center justify-center rounded-xl border border-gray-700/80 bg-[#111118] p-2 text-gray-300 sm:hidden"
                 onClick={() => setIsMenuOpen((prev) => !prev)}
                 aria-label="Ouvrir le menu"
               >

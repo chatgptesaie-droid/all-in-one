@@ -504,14 +504,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-gray-200 flex flex-col overflow-x-hidden">
       {/* Header - fixed */}
-      <header className="bg-[#111118] border-b border-gray-800 px-4 py-4 shrink-0 z-10 sm:px-6">
+      <header className="panel-surface border border-gray-800 px-4 py-4 shrink-0 z-10 sm:px-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between max-w-[1800px] mx-auto">
           <div>
-            <h1 className="text-lg font-semibold text-white tracking-tight">
+            <h1 className="text-xl font-semibold text-white tracking-tight">
               Netflix Cookie Validator
             </h1>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Validation et extraction de donnees
+            <p className="text-sm text-gray-400 mt-1">
+              Validation et extraction de donnees avec un design premium
             </p>
           </div>
           <StatusBadge message={statusMessage} isValidating={isValidating} />
@@ -523,8 +523,8 @@ export default function Home() {
         {/* Main content */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0 lg:pr-[400px]">
           {/* Toolbar - fixed */}
-          <div className="bg-[#111118] border-b border-gray-800 px-4 py-3 shrink-0 z-10 sm:px-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center max-w-[1800px] mx-auto">
+          <div className="panel-surface border border-gray-800 px-4 py-4 shrink-0 z-10 sm:px-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center max-w-[1800px] mx-auto">
               <label className="btn-secondary w-full sm:w-auto">
                 Charger fichier
                 <input
@@ -549,14 +549,21 @@ export default function Home() {
                 />
               </label>
 
-              <label className="flex items-center gap-2 w-full sm:w-auto text-sm text-gray-300">
+              <label
+                htmlFor="use-online-files"
+                className="switch-control w-full sm:w-auto text-sm text-gray-300"
+              >
+                <span className={`toggle-switch ${useOnlineFiles ? "toggle-switch--active" : ""}`} aria-hidden="true">
+                  <span className={`toggle-switch__thumb ${useOnlineFiles ? "toggle-switch__thumb--active" : ""}`} />
+                </span>
                 <input
+                  id="use-online-files"
                   type="checkbox"
                   checked={useOnlineFiles}
                   onChange={handleUseOnlineFilesChange}
-                  className="h-4 w-4 rounded border-gray-600 bg-[#0a0a0f] text-red-500"
+                  className="sr-only"
                 />
-                Utiliser fichiers en ligne
+                <span className="font-medium">Utiliser fichiers en ligne</span>
               </label>
 
               <div className="hidden h-6 w-px bg-gray-700 sm:mx-1 sm:block" />
@@ -614,7 +621,7 @@ export default function Home() {
           </div>
 
           {useOnlineFiles && (
-            <div className="p-4 border-b border-gray-800 bg-[#111118] max-w-[1800px] mx-auto w-full sm:p-6">
+            <div className="panel-surface p-4 max-w-[1800px] mx-auto w-full sm:p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="text-sm text-gray-200">Fichiers en ligne</div>
@@ -638,7 +645,7 @@ export default function Home() {
                       const selectedItem = storageFiles.find((item) => item.name === value);
                       setSelectedStorageIsFolder(!Boolean(selectedItem?.metadata) || value.endsWith("/"));
                     }}
-                    className="bg-[#16161e] border border-gray-700 text-sm text-gray-200 rounded px-3 py-2 min-w-[220px] focus:outline-none focus:border-red-500"
+                    className="select-surface min-w-[220px]"
                     disabled={isLoadingStorage || storageFiles.length === 0}
                   >
                     {storageFiles.map((file) => (
@@ -664,15 +671,15 @@ export default function Home() {
 
           {/* Input area (shown when no results) */}
           {results.length === 0 && !isValidating && (
-            <div className="p-4 shrink-0 max-w-[1800px] mx-auto w-full sm:p-6">
-              <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+            <div className="panel-surface p-4 shrink-0 max-w-[1800px] mx-auto w-full sm:p-6">
+              <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">
                 Cookies (format Netscape ou texte brut)
               </label>
               <textarea
                 value={cookieText}
                 onChange={(e) => setCookieText(e.target.value)}
                 placeholder={`.netflix.com\tTRUE\t/\tTRUE\t0\tNetflixId\tvaleur...\n.netflix.com\tTRUE\t/\tTRUE\t0\tSecureNetflixId\tvaleur...`}
-                className="w-full h-44 bg-[#16161e] border border-gray-800 rounded-lg p-4 text-sm text-gray-300 font-mono resize-y focus:outline-none focus:border-gray-600 placeholder:text-gray-700"
+                className="textarea-surface"
               />
             </div>
           )}
@@ -680,7 +687,7 @@ export default function Home() {
           {/* Results table - scrollable */}
           <div className="flex-1 overflow-auto min-h-0">
             {results.length > 0 && (
-              <div className="max-w-[1800px] mx-auto px-4 py-4 sm:px-6">
+              <div className="panel-surface max-w-[1800px] mx-auto px-4 py-4 sm:px-6 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-[980px] w-full text-sm border-collapse">
                     <thead className="sticky top-0 bg-[#0a0a0f] z-5">
@@ -753,14 +760,14 @@ export default function Home() {
           </div>
 
           {selectedResult && (
-            <div className="border-t border-gray-800 bg-[#111118] lg:hidden">
+            <div className="panel-surface border border-gray-800 lg:hidden">
               <ResultDetails result={selectedResult} />
             </div>
           )}
 
           {/* Stats footer - fixed */}
           {results.length > 0 && (
-            <div className="bg-[#111118] border-t border-gray-800 px-4 py-2.5 shrink-0 z-10 sm:px-6">
+            <div className="panel-surface border-t border-gray-800 px-4 py-2.5 shrink-0 z-10 sm:px-6">
               <div className="flex flex-wrap items-center gap-3 text-xs max-w-[1800px] mx-auto sm:gap-6">
                 <span className="text-gray-500">
                   Total:{" "}
