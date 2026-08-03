@@ -1,0 +1,16 @@
+﻿import { createClient } from '@supabase/supabase-js';
+import 'dotenv/config';
+const supabaseUrl=process.env.SUPABASE_URL;
+const supabaseAnonKey=process.env.SUPABASE_ANON_KEY;
+const supabaseServiceRoleKey=process.env.SUPABASE_SERVICE_ROLE;
+const bucket=process.env.SUPABASE_STORAGE_BUCKET||process.env.VITE_SUPABASE_STORAGE_BUCKET||'NETCOOKIES';
+if (!supabaseUrl || !supabaseAnonKey) throw new Error('missing env');
+const client=createClient(supabaseUrl,supabaseServiceRoleKey||supabaseAnonKey,{auth:{persistSession:false}});
+const path='X129 Netflix Cookies By @Beck1sV2/';
+const result=await client.storage.from(bucket).list(path,{limit:1000,offset:0,sortBy:{column:'name',order:'asc'}});
+console.log('bucket', bucket);
+console.log('path', path);
+console.log('error', result.error);
+console.log('length', result.data?.length);
+console.log('first', result.data?.[0]);
+console.log('last', result.data?.[result.data.length-1]);

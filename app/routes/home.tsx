@@ -84,6 +84,20 @@ export default function Home() {
   const [fileLoaded, setFileLoaded] = useState<string | null>(null);
   const [cookieText, setCookieText] = useState("");
   const [statusMessage, setStatusMessage] = useState("Pret");
+  const [useOnlineFiles, setUseOnlineFiles] = useState(false);
+  const [storageFiles, setStorageFiles] = useState<Array<{
+    id: string | null;
+    name: string;
+    updated_at?: string;
+    metadata?: Record<string, unknown> | null;
+  }>>([]);
+  const [currentStorageFolder, setCurrentStorageFolder] = useState("");
+  const [selectedStoragePath, setSelectedStoragePath] = useState("");
+  const [selectedStorageIsFolder, setSelectedStorageIsFolder] = useState(false);
+  const [storageFolderFileCount, setStorageFolderFileCount] = useState(0);
+  const [storageFolderLoadedCount, setStorageFolderLoadedCount] = useState(0);
+  const [isLoadingStorage, setIsLoadingStorage] = useState(false);
+  const [storageError, setStorageError] = useState<string | null>(null);
 
   const validCount = results.filter((r) => r.isValid).length;
   const invalidCount = results.filter((r) => !r.isValid).length;
@@ -116,6 +130,9 @@ export default function Home() {
         setProgress(event.progress || 0);
       } else if (event.type === "done") {
         setStatusMessage(`Termine - ${event.valid} valides, ${event.invalid} invalides`);
+        if (useOnlineFiles && selectedStoragePath) {
+          saveValidationSummary(event.valid, event.invalid);
+        }
         setIsValidating(false);
       } else if (event.type === "error") {
         setStatusMessage(`Erreur: ${event.message}`);
@@ -175,6 +192,261 @@ export default function Home() {
       });
     },
     []
+  );
+
+  const STORAGE_BUCKET = import.meta.env.VITE_SUPABASE_STORAGE_BUCKET || "NETCOOKIES";
+
+  const fetchStorageFiles = useCallback(async (folderPath?: string) => {
+    const path = folderPath ?? currentStorageFolder;
+    setIsLoadingStorage(true);
+    setStorageError(null);
+
+    try {
+      const body: Record<string, string> = { path };
+      if (STORAGE_BUCKET) {
+        body.bucket = STORAGE_BUCKET;
+      }
+      const response = await fetch("/api/storage/list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || "Impossible de lister les fichiers");
+      }
+
+      const list = Array.isArray(payload.data) ? payload.data : [];
+      setStorageFiles(list);
+      if (list.length > 0) {
+        const firstName = list[0].name || list[0].id || "";
+        setSelectedStoragePath(firstName);
+        setSelectedStorageIsFolder(list[0].id === null);
+      } else {
+        setSelectedStoragePath("");
+        setSelectedStorageIsFolder(false);
+      }
+    } catch (error) {
+      setStorageError(
+        error instanceof Error ? error.message : "Erreur de stockage en ligne"
+      );
+    } finally {
+      setIsLoadingStorage(false);
+    }
+  }, [STORAGE_BUCKET, currentStorageFolder]);
+
+  const saveStorageAccess = useCallback(
+    async (path: string) => {
+      try {
+        await fetch("/api/db/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            table: "files",
+            record: {
+              path,
+              bucket: STORAGE_BUCKET,
+              source: "supabase_load",
+              loaded_at: new Date().toISOString(),
+            },
+          }),
+        });
+      } catch {
+        // ignore database save errors
+      }
+    },
+    [STORAGE_BUCKET]
+  );
+
+  const listStorageEntries = useCallback(
+    async (folderPath: string) => {
+      const allEntries: Array<{ id: string | null; name: string; updated_at?: string; metadata?: Record<string, unknown> | null }> = [];
+      let offset = 0;
+      while (true) {
+        const response = await fetch("/api/storage/list", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bucket: STORAGE_BUCKET, path: folderPath, limit: 1000, offset }),
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || "Impossible de lister les fichiers");
+        }
+
+        const list = Array.isArray(payload.data) ? payload.data : [];
+        allEntries.push(...list);
+        if (list.length < 1000) {
+          break;
+        }
+        offset += list.length;
+      }
+      return allEntries;
+    },
+    [STORAGE_BUCKET]
+  );
+
+  const collectFolderFiles = useCallback(
+    async (folderPath: string) => {
+      const entries = await listStorageEntries(folderPath);
+      const files: Array<{ name: string; path: string }> = [];
+
+      for (const entry of entries) {
+        const entryName = entry.name || entry.id;
+        if (!entryName) continue;
+        const entryPath = `${folderPath}${entryName}`;
+        const isFolder = entry.id === null && entry.metadata == null;
+        if (isFolder) {
+          const subFolderPath = entryPath.endsWith("/") ? entryPath : `${entryPath}/`;
+          const nestedFiles = await collectFolderFiles(subFolderPath);
+          files.push(...nestedFiles);
+        } else {
+          files.push({ name: entryName, path: entryPath });
+        }
+      }
+
+      return files;
+    },
+    [listStorageEntries]
+  );
+
+  const saveValidationSummary = useCallback(
+    async (valid: number, invalid: number) => {
+      if (!selectedStoragePath) return;
+
+      try {
+        await fetch("/api/db/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            table: "files",
+            record: {
+              path: selectedStoragePath,
+              bucket: STORAGE_BUCKET,
+              source: "validation",
+              valid_count: valid,
+              invalid_count: invalid,
+              validated_at: new Date().toISOString(),
+            },
+          }),
+        });
+      } catch {
+        // ignore database save errors
+      }
+    },
+    [selectedStoragePath, STORAGE_BUCKET]
+  );
+
+  const loadStorageFile = useCallback(async () => {
+    if (!selectedStoragePath) {
+      setStorageError("Selectionne un fichier en ligne");
+      return;
+    }
+
+    const selectedItem = storageFiles.find((item) => item.name === selectedStoragePath);
+    const isFolder = selectedItem
+      ? selectedItem.id === null && selectedItem.metadata == null
+      : selectedStorageIsFolder;
+
+    if (isFolder) {
+      const folderPath = `${currentStorageFolder}${selectedStoragePath}`.replace(/\\/g, "/");
+      const normalizedFolderPath = folderPath.endsWith("/") ? folderPath : `${folderPath}/`;
+
+      setStorageError(null);
+      setIsLoadingStorage(true);
+      setCookieText("");
+      setFileLoaded(normalizedFolderPath);
+      setSelectedResult(null);
+      setStatusMessage(`Chargement du dossier: ${normalizedFolderPath}`);
+
+      try {
+        const files = await collectFolderFiles(normalizedFolderPath);
+        if (files.length === 0) {
+          throw new Error("Le dossier ne contient aucun fichier");
+        }
+
+        setStorageFolderFileCount(files.length);
+        setStorageFolderLoadedCount(0);
+
+        let combinedText = "";
+        for (const [index, file] of files.entries()) {
+          const fileResponse = await fetch("/api/storage/content", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ bucket: STORAGE_BUCKET, path: file.path }),
+          });
+
+          if (!fileResponse.ok) {
+            const payload = await fileResponse.json().catch(() => ({}));
+            throw new Error(payload.error || `Impossible de charger ${file.path}`);
+          }
+
+          const fileText = await fileResponse.text();
+          combinedText += `# --- ${file.name} ---\n${fileText}\n\n`;
+          setStorageFolderLoadedCount(index + 1);
+          setStatusMessage(
+            `Chargement du dossier: ${normalizedFolderPath} (${index + 1}/${files.length})`
+          );
+        }
+
+        setCookieText(combinedText.trim());
+        setFileLoaded(normalizedFolderPath);
+        setStatusMessage(`Dossier charge: ${normalizedFolderPath}`);
+        await saveStorageAccess(normalizedFolderPath);
+      } catch (error) {
+        setStorageError(
+          error instanceof Error ? error.message : "Erreur de chargement en ligne"
+        );
+      } finally {
+        setIsLoadingStorage(false);
+        setStorageFolderLoadedCount(0);
+      }
+
+      return;
+    }
+
+    setStorageError(null);
+
+    try {
+      const response = await fetch("/api/storage/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bucket: STORAGE_BUCKET,
+          path: `${currentStorageFolder}${selectedStoragePath}`,
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || "Impossible de charger le fichier");
+      }
+
+      const text = await response.text();
+      setCookieText(text);
+      setFileLoaded(`${currentStorageFolder}${selectedStoragePath}`);
+      setStatusMessage(`Fichier en ligne charge: ${currentStorageFolder}${selectedStoragePath}`);
+      await saveStorageAccess(`${currentStorageFolder}${selectedStoragePath}`);
+    } catch (error) {
+      setStorageError(
+        error instanceof Error ? error.message : "Erreur de chargement en ligne"
+      );
+    } finally {
+      setIsLoadingStorage(false);
+    }
+  }, [currentStorageFolder, saveStorageAccess, selectedStorageIsFolder, selectedStoragePath, storageFiles]);
+
+  const handleUseOnlineFilesChange = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const enabled = event.target.checked;
+      setUseOnlineFiles(enabled);
+      if (enabled) {
+        setCurrentStorageFolder("");
+        setSelectedStoragePath("");
+        setSelectedStorageIsFolder(false);
+        await fetchStorageFiles();
+      }
+    },
+    [fetchStorageFiles]
   );
 
   const startValidation = useCallback(() => {
@@ -260,7 +532,7 @@ export default function Home() {
                   accept=".txt,.json"
                   className="hidden"
                   onChange={handleFileUpload}
-                  disabled={isValidating}
+                  disabled={isValidating || useOnlineFiles}
                 />
               </label>
 
@@ -272,9 +544,19 @@ export default function Home() {
                   multiple
                   className="hidden"
                   onChange={handleMultipleFiles}
-                  disabled={isValidating}
+                  disabled={isValidating || useOnlineFiles}
                   {...({ webkitdirectory: "", directory: "" } as any)}
                 />
+              </label>
+
+              <label className="flex items-center gap-2 w-full sm:w-auto text-sm text-gray-300">
+                <input
+                  type="checkbox"
+                  checked={useOnlineFiles}
+                  onChange={handleUseOnlineFilesChange}
+                  className="h-4 w-4 rounded border-gray-600 bg-[#0a0a0f] text-red-500"
+                />
+                Utiliser fichiers en ligne
               </label>
 
               <div className="hidden h-6 w-px bg-gray-700 sm:mx-1 sm:block" />
@@ -330,6 +612,55 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {useOnlineFiles && (
+            <div className="p-4 border-b border-gray-800 bg-[#111118] max-w-[1800px] mx-auto w-full sm:p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="text-sm text-gray-200">Fichiers en ligne</div>
+                  <div className="text-xs text-gray-400">
+                    {isLoadingStorage && storageFolderFileCount > 0
+                      ? `Chargement ${storageFolderLoadedCount}/${storageFolderFileCount} fichier(s)...`
+                      : isLoadingStorage
+                      ? "Chargement des fichiers..."
+                      : storageFiles.length > 0
+                      ? `${storageFiles.length} fichier(s) disponibles`
+                      : "Aucun fichier en ligne trouvé."}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <select
+                    value={selectedStoragePath}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSelectedStoragePath(value);
+                      const selectedItem = storageFiles.find((item) => item.name === value);
+                      setSelectedStorageIsFolder(!Boolean(selectedItem?.metadata) || value.endsWith("/"));
+                    }}
+                    className="bg-[#16161e] border border-gray-700 text-sm text-gray-200 rounded px-3 py-2 min-w-[220px] focus:outline-none focus:border-red-500"
+                    disabled={isLoadingStorage || storageFiles.length === 0}
+                  >
+                    {storageFiles.map((file) => (
+                      <option key={file.id ?? file.name} value={file.name || file.id || ""}>
+                        {file.name || file.id}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={loadStorageFile}
+                    disabled={isLoadingStorage || !selectedStoragePath}
+                    className="btn-primary w-full sm:w-auto"
+                  >
+                    {isLoadingStorage ? "Chargement..." : "Charger depuis Supabase"}
+                  </button>
+                </div>
+              </div>
+              {storageError && (
+                <p className="mt-3 text-sm text-red-400">{storageError}</p>
+              )}
+            </div>
+          )}
 
           {/* Input area (shown when no results) */}
           {results.length === 0 && !isValidating && (
