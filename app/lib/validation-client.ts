@@ -23,6 +23,11 @@ export async function streamResponseEvents(
       try {
         const event = JSON.parse(line);
         onEvent(event);
+        // Yield au scheduler après chaque résultat pour que React
+        // puisse flusher le setState et afficher en live
+        if (event.type === "result") {
+          await new Promise<void>((r) => setTimeout(r, 0));
+        }
       } catch {
         // ignore malformed lines
       }

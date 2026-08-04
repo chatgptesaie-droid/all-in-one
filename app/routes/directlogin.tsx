@@ -102,12 +102,12 @@ export default function DirectLoginPage() {
   }, [urlText]);
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-gray-200">
+    <main className="min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <section className="max-w-6xl mx-auto px-4 py-6 sm:px-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-white">Direct Login Netflix</h1>
-            <p className="mt-2 text-sm text-gray-400">
+            <h1 className="text-3xl font-semibold" style={{ color: "var(--text)" }}>Direct Login Netflix</h1>
+            <p className="mt-2 text-sm" style={{ color: "var(--text-muted)" }}>
               Collez vos liens, puis testez si chaque lien redirige vers <span className="font-semibold">https://www.netflix.com/account</span>.
             </p>
           </div>
@@ -124,41 +124,52 @@ export default function DirectLoginPage() {
         </div>
 
         <div className="mt-6">
-          <label className="text-sm font-medium text-gray-300 mb-2 block">Liens Netflix</label>
+          <label className="text-sm font-medium mb-2 block" style={{ color: "var(--text)" }}>Liens Netflix</label>
           <textarea
             value={urlText}
             onChange={(event) => setUrlText(event.target.value)}
             rows={10}
             placeholder="https://www.netflix.com/directlogin?....\nhttps://www.netflix.com/..."
-            className="w-full rounded-2xl border border-gray-800 bg-[#111118] p-4 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-red-500"
+            className="textarea-surface"
           />
-          <p className="mt-2 text-xs text-gray-500">Un lien par ligne, les lignes vides et les commentaires (#) sont ignorés.</p>
+          <p className="mt-2 text-xs" style={{ color: "var(--text-subtle)" }}>Un lien par ligne, les lignes vides et les commentaires (#) sont ignorés.</p>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-gray-800 bg-[#111118] p-4">
+        <div className="mt-6 rounded-2xl border p-4" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
           <div className="grid gap-3 sm:grid-cols-4 sm:items-center">
             <div>
-              <div className="text-sm text-gray-300">Statut</div>
-              <div className="text-sm text-gray-400">{statusMessage}</div>
+              <div className="text-sm font-medium" style={{ color: "var(--text)" }}>Statut</div>
+              <div className="text-sm" style={{ color: "var(--text-muted)" }}>{statusMessage}</div>
             </div>
             <div>
-              <div className="text-sm text-gray-300">Total</div>
-              <div className="text-sm text-gray-400">{totalCount}</div>
+              <div className="text-sm font-medium" style={{ color: "var(--text)" }}>Total</div>
+              <div className="text-sm" style={{ color: "var(--text-muted)" }}>{totalCount}</div>
             </div>
             <div>
-              <div className="text-sm text-gray-300">Valid</div>
-              <div className="text-sm text-emerald-300">{validCount}</div>
+              <div className="text-sm font-medium" style={{ color: "var(--text)" }}>Valid</div>
+              <div className="text-sm text-emerald-500 font-medium">{validCount}</div>
             </div>
             <div>
-              <div className="text-sm text-gray-300">Invalide</div>
-              <div className="text-sm text-red-300">{invalidCount}</div>
+              <div className="text-sm font-medium" style={{ color: "var(--text)" }}>Invalide</div>
+              <div className="text-sm text-red-400 font-medium">{invalidCount}</div>
             </div>
           </div>
+          {isLoading && (
+            <div className="mt-3">
+              <div className="flex justify-between text-[11px] mb-1" style={{ color: "var(--text-subtle)" }}>
+                <span>{results.length} / {totalCount} traités</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="w-full rounded-full h-1.5" style={{ background: "var(--border)" }}>
+                <div className="bg-red-600 h-1.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 overflow-x-auto">
           {results.length === 0 ? (
-            <div className="rounded-2xl border border-gray-800 bg-[#111118] p-6 text-gray-400">
+            <div className="rounded-2xl border p-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
               Aucun résultat pour le moment.
             </div>
           ) : (
@@ -166,40 +177,41 @@ export default function DirectLoginPage() {
               {results.map((result) => (
                 <div
                   key={result.index}
-                  className="rounded-2xl border border-gray-800 bg-[#111118] p-4"
+                  className="rounded-2xl border p-4"
+                  style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <div className="text-sm font-medium text-white">Lien #{result.index}</div>
-                      <div className="text-xs text-gray-400 break-all">{result.url}</div>
+                      <div className="text-sm font-medium" style={{ color: "var(--text)" }}>Lien #{result.index}</div>
+                      <div className="text-xs break-all" style={{ color: "var(--text-muted)" }}>{result.url}</div>
                     </div>
-                    <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${result.isValid ? "bg-emerald-950 text-emerald-300" : "bg-red-950 text-red-300"}`}>
+                    <div className={result.isValid ? "badge-valid" : "badge-invalid"}>
                       {result.isValid ? "Valide" : "Invalide"}
                     </div>
                   </div>
                   <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                    <div className="text-xs text-gray-400">
-                      <span className="text-gray-200">Status:</span> {result.status ?? "-"}
+                    <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                      <span style={{ color: "var(--text)" }}>Status:</span> {result.status ?? "-"}
                     </div>
-                    <div className="text-xs text-gray-400 break-all">
-                      <span className="text-gray-200">Final URL:</span> {result.finalUrl || "-"}
+                    <div className="text-xs break-all" style={{ color: "var(--text-muted)" }}>
+                      <span style={{ color: "var(--text)" }}>Final URL:</span> {result.finalUrl || "-"}
                     </div>
-                    <div className="text-xs text-gray-400">
-                      <span className="text-gray-200">Message:</span> {result.message}
+                    <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                      <span style={{ color: "var(--text)" }}>Message:</span> {result.message}
                     </div>
                   </div>
                   {result.profileNames && result.profileNames.length > 0 && (
-                    <div className="mt-3 text-xs text-gray-300">
-                      <span className="text-gray-200">Profils:</span> {result.profileNames.join(", ")}
+                    <div className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
+                      <span style={{ color: "var(--text)" }}>Profils:</span> {result.profileNames.join(", ")}
                     </div>
                   )}
                   {result.accountInfo && Object.keys(result.accountInfo).length > 0 && (
-                    <div className="mt-3 rounded-2xl border border-gray-700 bg-[#12121a] p-3 text-xs text-gray-300">
-                      <div className="mb-2 text-sm font-semibold text-white">Infos compte</div>
+                    <div className="mt-3 rounded-2xl border p-3 text-xs" style={{ background: "var(--bg-surface-alt)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
+                      <div className="mb-2 text-sm font-semibold" style={{ color: "var(--text)" }}>Infos compte</div>
                       <div className="grid gap-2 sm:grid-cols-2">
                         {Object.entries(result.accountInfo).map(([key, value]) => (
                           <div key={key} className="flex items-start gap-2">
-                            <span className="font-medium text-gray-200">{key}:</span>
+                            <span className="font-medium" style={{ color: "var(--text)" }}>{key}:</span>
                             <span className="break-all">{Array.isArray(value) ? value.join(", ") : String(value)}</span>
                           </div>
                         ))}

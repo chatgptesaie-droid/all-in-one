@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import * as validator from "../lib/spotify.validator";
 
 type CookieEntry = {
@@ -21,6 +21,12 @@ type ValidationResult = {
   netscapeFormat: string;
 };
 
+function copyText(text: string) {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    void navigator.clipboard.writeText(text);
+  }
+}
+
 export default function SpotifyPage() {
   const [cookieText, setCookieText] = useState("");
   const [results, setResults] = useState<ValidationResult[]>([]);
@@ -31,6 +37,8 @@ export default function SpotifyPage() {
   const [fileLoaded, setFileLoaded] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("Pret");
 
+  const validCount = results.filter((r) => r.isValid).length;
+  const invalidCount = results.filter((r) => !r.isValid).length;
 
   const start = useCallback(() => {
     if (!cookieText.trim()) return;
@@ -45,7 +53,6 @@ export default function SpotifyPage() {
     setIsValidating(false);
   }, []);
 
-  // file upload handlers
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -81,55 +88,64 @@ export default function SpotifyPage() {
     });
   }, []);
 
-  // subscribe to validator
   useEffect(() => {
     const unsub = validator.subscribe((event) => {
-      if (event.type === 'snapshot') {
+      if (event.type === "snapshot") {
         setResults(event.results || []);
         setIsValidating(!!event.running);
         setProgress(event.progress || 0);
         setTotalBatches(event.total || 0);
-      } else if (event.type === 'init') {
+        setStatusMessage(event.statusMessage || "Pret");
+      } else if (event.type === "init") {
         setTotalBatches(event.total || 0);
-        setStatusMessage('Validation démarree');
-      } else if (event.type === 'result') {
+        setStatusMessage("Validation démarrée");
+      } else if (event.type === "result") {
         setResults((prev) => [...prev, event.data]);
         setProgress(event.progress || 0);
-      } else if (event.type === 'done') {
+      } else if (event.type === "done") {
         setIsValidating(false);
-        setStatusMessage(`Termine - ${event.valid} valides, ${event.invalid} invalides`);
-      } else if (event.type === 'error') {
+        setStatusMessage(`Terminé - ${event.valid} valides, ${event.invalid} invalides`);
+      } else if (event.type === "error") {
         setStatusMessage(`Erreur: ${event.message}`);
         setIsValidating(false);
-      } else if (event.type === 'start') {
+      } else if (event.type === "start") {
         setIsValidating(true);
-        setStatusMessage('Validation en cours...');
-      } else if (event.type === 'stop' || event.type === 'stopped') {
+        setStatusMessage("Validation en cours...");
+      } else if (event.type === "stop" || event.type === "stopped") {
         setIsValidating(false);
-        setStatusMessage('Validation arretée');
+        setStatusMessage("Validation arrêtée");
       }
     });
     return () => unsub();
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-gray-200 flex flex-col overflow-x-hidden">
-      {/* Header - reuse simple header */}
-      <header className="bg-[#111118] border-b border-gray-800 px-4 py-4 shrink-0 z-10 sm:px-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between max-w-7xl mx-auto">
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
+      {/* Header */}
+      <header className="shrink-0 z-20 border-b px-4 py-3 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-white tracking-tight">Spotify Cookie Validator</h1>
-            <p className="text-xs text-gray-500 mt-0.5">Validation et extraction de donnees</p>
+            <h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--text)" }}>
+              Spotify Cookie Validator
+            </h1>
+            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+              Validation et extraction de données
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {isValidating && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>{statusMessage}</span>
           </div>
         </div>
       </header>
 
-      <div className="flex flex-1 flex-col overflow-hidden min-h-0 lg:flex-row">
-        {/* Main content - left */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0 lg:pr-100">
-          {/* Toolbar - fixed */}
-          <div className="bg-[#111118] border-b border-gray-800 px-4 py-3 shrink-0 z-10 sm:px-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center max-w-7xl mx-auto">
+      {/* Body */}
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        {/* Main content */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {/* Toolbar */}
+          <div className="shrink-0 z-10 border-b px-4 py-3 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <label className="btn-secondary w-full sm:w-auto">
                 Charger fichier
                 <input type="file" accept=".txt,.json" className="hidden" onChange={handleFileUpload} disabled={isValidating} />
@@ -138,33 +154,55 @@ export default function SpotifyPage() {
                 Charger dossier
                 <input type="file" accept=".txt" multiple className="hidden" onChange={handleMultipleFiles} disabled={isValidating} {...({ webkitdirectory: "", directory: "" } as any)} />
               </label>
-              <div className="hidden h-6 w-px bg-gray-700 sm:mx-1 sm:block" />
+              <div className="hidden h-6 w-px sm:mx-1 sm:block" style={{ background: "var(--border)" }} />
               <button onClick={start} disabled={isValidating || !cookieText.trim()} className="btn-primary w-full sm:w-auto">
                 {isValidating ? "Validation..." : "Lancer la validation"}
               </button>
-
               {isValidating && (
-                <button onClick={stop} className="btn-danger w-full sm:w-auto">Arreter</button>
+                <button onClick={stop} className="btn-danger w-full sm:w-auto">Arrêter</button>
               )}
-
-              <span className="text-xs text-gray-400 sm:ml-auto">{statusMessage}</span>
+              {fileLoaded && (
+                <span className="text-xs sm:ml-auto" style={{ color: "var(--text-subtle)" }}>{fileLoaded}</span>
+              )}
             </div>
+
+            {/* Progress */}
+            {isValidating && (
+              <div className="mt-3">
+                <div className="flex justify-between text-[11px] mb-1" style={{ color: "var(--text-subtle)" }}>
+                  <span>{results.length} / {totalBatches} traités</span>
+                  <span>{progress}%</span>
+                </div>
+                <div className="w-full rounded-full h-1.5" style={{ background: "var(--border)" }}>
+                  <div className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Input area */}
-          <div className="p-4 shrink-0 max-w-7xl mx-auto w-full sm:p-6">
-            <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">Cookies (format Netscape ou texte brut)</label>
-            <textarea value={cookieText} onChange={(e) => setCookieText(e.target.value)} placeholder={`sp_dc\tTRUE\t/\tTRUE\t0\tsp_dc\tvaleur...\nsp_key\tTRUE\t/\tTRUE\t0\tsp_key\tvaleur...`} className="w-full h-44 bg-[#16161e] border border-gray-800 rounded-lg p-4 text-sm text-gray-300 font-mono resize-y focus:outline-none focus:border-gray-600 placeholder:text-gray-700" />
-          </div>
+          {results.length === 0 && !isValidating && (
+            <div className="shrink-0 border-b px-4 py-4 sm:px-6" style={{ background: "var(--bg-surface-alt)", borderColor: "var(--border)" }}>
+              <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
+                Cookies (format Netscape ou texte brut)
+              </label>
+              <textarea
+                value={cookieText}
+                onChange={(e) => setCookieText(e.target.value)}
+                placeholder={`sp_dc\tTRUE\t/\tTRUE\t0\tsp_dc\tvaleur...\nsp_key\tTRUE\t/\tTRUE\t0\tsp_key\tvaleur...`}
+                className="textarea-surface"
+              />
+            </div>
+          )}
 
-          {/* Results table - scrollable */}
-          <div className="flex-1 overflow-auto min-h-0">
+          {/* Results table */}
+          <div className="flex-1 overflow-auto min-h-0" style={{ background: "var(--bg)" }}>
             {results.length > 0 && (
-              <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6">
-                <div className="overflow-x-auto">
-                  <table className="min-w-[760px] w-full text-sm border-collapse">
-                    <thead className="sticky top-0 bg-[#0a0a0f] z-5">
-                      <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-800">
+              <div className="px-4 py-3 sm:px-6">
+                <div className="overflow-x-auto rounded-xl border" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+                  <table className="min-w-[700px] w-full text-sm border-collapse">
+                    <thead className="sticky top-0 z-10" style={{ background: "var(--bg-surface)" }}>
+                      <tr className="text-left text-[11px] uppercase tracking-wider border-b" style={{ color: "var(--text-subtle)", borderColor: "var(--border)" }}>
                         <th className="px-3 py-2.5 w-10">#</th>
                         <th className="px-3 py-2.5 w-20">Statut</th>
                         <th className="px-3 py-2.5">Profil / Email</th>
@@ -175,13 +213,23 @@ export default function SpotifyPage() {
                     </thead>
                     <tbody>
                       {results.map((result) => (
-                        <tr key={result.batchIndex} onClick={() => setSelectedResult(result)} className={`border-b border-gray-800/50 cursor-pointer ${selectedResult?.batchIndex === result.batchIndex ? 'bg-[#11121a]' : 'hover:bg-[#0f0f14]'}`}>
-                          <td className="px-3 py-2.5 text-gray-500 font-mono text-xs">{result.batchIndex}</td>
-                          <td className="px-3 py-2.5"><span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium ${result.isValid ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/50' : 'bg-red-950/60 text-red-400 border border-red-800/50'}`}><span className={`w-1.5 h-1.5 rounded-full ${result.isValid ? 'bg-emerald-400' : 'bg-red-400'}`} />{result.isValid ? 'Valide' : 'Invalide'}</span></td>
-                          <td className="px-3 py-2.5 text-gray-300 text-xs">{(result.accountInfo?.display_name as string) || (result.accountInfo?.email as string) || '-'}</td>
-                          <td className="px-3 py-2.5 text-gray-300 text-xs">{(result.accountInfo?.plan as string) || (result.accountInfo?.planName as string) || '-'}</td>
-                          <td className="px-3 py-2.5 text-gray-400 text-xs">{result.accountInfo?.country || '-'}</td>
-                          <td className="px-3 py-2.5 text-gray-500 text-xs truncate max-w-50">{result.message}</td>
+                        <tr
+                          key={result.batchIndex}
+                          onClick={() => setSelectedResult(result)}
+                          className={`table-row-hover cursor-pointer ${selectedResult?.batchIndex === result.batchIndex ? "row-selected" : ""}`}
+                          style={{ borderBottom: "1px solid var(--border-subtle)" }}
+                        >
+                          <td className="px-3 py-2.5 font-mono text-xs" style={{ color: "var(--text-subtle)" }}>{result.batchIndex}</td>
+                          <td className="px-3 py-2.5">
+                            <span className={result.isValid ? "badge-valid" : "badge-invalid"}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${result.isValid ? "bg-emerald-400" : "bg-red-400"}`} />
+                              {result.isValid ? "Valide" : "Invalide"}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text)" }}>{(result.accountInfo?.display_name as string) || (result.accountInfo?.email as string) || "-"}</td>
+                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text)" }}>{(result.accountInfo?.plan as string) || (result.accountInfo?.planName as string) || "-"}</td>
+                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text-muted)" }}>{result.accountInfo?.country as string || "-"}</td>
+                          <td className="px-3 py-2.5 text-xs truncate max-w-[200px]" style={{ color: "var(--text-subtle)" }}>{result.message}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -191,55 +239,107 @@ export default function SpotifyPage() {
             )}
           </div>
 
-          {/* Stats footer - fixed */}
+          {/* Mobile detail */}
+          {selectedResult && (
+            <div className="border-t lg:hidden overflow-y-auto max-h-[50vh]" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+              <SpotifyDetails result={selectedResult} />
+            </div>
+          )}
+
+          {/* Stats footer */}
           {results.length > 0 && (
-            <div className="bg-[#111118] border-t border-gray-800 px-4 py-2.5 shrink-0 z-10 sm:px-6">
-              <div className="flex flex-wrap items-center gap-3 text-xs max-w-7xl mx-auto sm:gap-6">
-                <span className="text-gray-500">Total: <span className="text-gray-300 font-medium">{results.length}</span></span>
-                <span className="text-gray-500">Valides: <span className="text-emerald-400 font-medium">{results.filter(r=>r.isValid).length}</span></span>
-                <span className="text-gray-500">Invalides: <span className="text-red-400 font-medium">{results.filter(r=>!r.isValid).length}</span></span>
+            <div className="shrink-0 z-10 border-t px-4 py-2.5 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+              <div className="flex flex-wrap items-center gap-3 text-xs sm:gap-6">
+                <span style={{ color: "var(--text-muted)" }}>Total: <span className="font-medium" style={{ color: "var(--text)" }}>{results.length}</span></span>
+                <span style={{ color: "var(--text-muted)" }}>Valides: <span className="text-emerald-500 font-medium">{validCount}</span></span>
+                <span style={{ color: "var(--text-muted)" }}>Invalides: <span className="text-red-400 font-medium">{invalidCount}</span></span>
               </div>
             </div>
           )}
         </div>
 
-        {/* Right panel - Details (fixed) */}
-        <aside className="hidden lg:block w-100 bg-[#111118] border-l border-gray-800 overflow-y-auto fixed right-0 top-0 bottom-0 pt-18.25">
+        {/* Right panel - Details */}
+        <aside className="hidden lg:flex lg:flex-col w-[400px] border-l overflow-y-auto" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
           {selectedResult ? (
-            <div className="p-5 space-y-5">
-              <div className={`p-3 rounded-lg border ${selectedResult.isValid ? 'bg-emerald-950/30 border-emerald-800/40' : 'bg-red-950/30 border-red-800/40'}`}>
-                <p className={`text-sm font-medium ${selectedResult.isValid ? 'text-emerald-400' : 'text-red-400'}`}>{selectedResult.isValid ? 'Cookie Valide' : 'Cookie Invalide'}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{selectedResult.message}</p>
-              </div>
-
-              {selectedResult.accountInfo && (
-                <section>
-                  <h3 className="text-[11px] uppercase tracking-wider text-gray-500 font-medium mb-3">Informations du compte</h3>
-                  <pre className="text-xs text-gray-300 bg-[#0b0b0b] p-3 rounded">{JSON.stringify(selectedResult.accountInfo, null, 2)}</pre>
-                </section>
-              )}
-
-              <section>
-                <h3 className="text-[11px] uppercase tracking-wider text-gray-500 font-medium mb-2">Cookies (Netscape)</h3>
-                <pre className="text-[11px] text-gray-500 font-mono bg-[#0a0a0f] rounded-lg p-3 border border-gray-800 whitespace-pre-wrap break-all">{selectedResult.netscapeFormat}</pre>
-              </section>
-            </div>
+            <SpotifyDetails result={selectedResult} />
           ) : (
-            <div className="flex items-center justify-center h-full"><p className="text-sm text-gray-600">Selectionnez un resultat</p></div>
+            <div className="flex items-center justify-center h-full">
+              <p className="text-sm" style={{ color: "var(--text-subtle)" }}>Sélectionnez un résultat</p>
+            </div>
           )}
         </aside>
-
-        {selectedResult && (
-          <div className="border-t border-gray-800 bg-[#111118] lg:hidden">
-            <div className="p-4 sm:p-5">
-              <div className={`p-3 rounded-lg border ${selectedResult.isValid ? 'bg-emerald-950/30 border-emerald-800/40' : 'bg-red-950/30 border-red-800/40'}`}>
-                <p className={`text-sm font-medium ${selectedResult.isValid ? 'text-emerald-400' : 'text-red-400'}`}>{selectedResult.isValid ? 'Cookie Valide' : 'Cookie Invalide'}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{selectedResult.message}</p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+    </div>
+  );
+}
+
+function SpotifyDetails({ result }: { result: ValidationResult }) {
+  return (
+    <div className="p-4 space-y-4 sm:p-5 sm:space-y-5">
+      {/* Status */}
+      <div className={result.isValid ? "detail-valid" : "detail-invalid"}>
+        <p className={`text-sm font-medium ${result.isValid ? "detail-valid-text" : "detail-invalid-text"}`}>
+          {result.isValid ? "Cookie Valide" : "Cookie Invalide"}
+        </p>
+        <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{result.message}</p>
+      </div>
+
+      {/* Account info */}
+      {result.accountInfo && Object.keys(result.accountInfo).length > 0 && (
+        <section>
+          <h3 className="text-[11px] uppercase tracking-wider font-medium mb-3" style={{ color: "var(--text-subtle)" }}>
+            Informations du compte
+          </h3>
+          <div className="space-y-1.5">
+            {Object.entries(result.accountInfo).map(([key, value]) => (
+              <div key={key} className="flex items-baseline justify-between gap-4 py-1.5 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+                <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>{key}</span>
+                <span className="text-xs text-right truncate" style={{ color: "var(--text)" }}>
+                  {Array.isArray(value) ? value.join(", ") : String(value ?? "-")}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Cookies */}
+      <section>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-[11px] uppercase tracking-wider font-medium" style={{ color: "var(--text-subtle)" }}>
+            Cookies (Netscape)
+          </h3>
+          <button
+            onClick={() => copyText(result.netscapeFormat)}
+            className="text-[11px] transition-colors hover:opacity-70"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Copier
+          </button>
+        </div>
+        <pre className="text-[11px] font-mono rounded-lg p-3 border whitespace-pre-wrap break-all max-h-[280px] overflow-auto" style={{ color: "var(--text-subtle)", background: "var(--bg)", borderColor: "var(--border)" }}>
+          {result.netscapeFormat}
+        </pre>
+      </section>
+
+      {/* Cookie list */}
+      {result.cookiesData?.length > 0 && (
+        <section>
+          <h3 className="text-[11px] uppercase tracking-wider font-medium mb-2" style={{ color: "var(--text-subtle)" }}>
+            Détail des cookies ({result.cookiesData.length})
+          </h3>
+          <div className="rounded-lg border divide-y" style={{ background: "var(--bg)", borderColor: "var(--border)" }}>
+            {result.cookiesData.map((cookie, idx) => (
+              <div key={idx} className="px-3 py-2 flex items-center gap-3" style={{ borderColor: "var(--border-subtle)" }}>
+                <span className="text-[11px] text-amber-500/80 font-medium shrink-0 w-[120px] truncate">{cookie.name}</span>
+                <span className="text-[11px] truncate flex-1" style={{ color: "var(--text-subtle)" }}>
+                  {cookie.value.length > 60 ? cookie.value.substring(0, 60) + "..." : cookie.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

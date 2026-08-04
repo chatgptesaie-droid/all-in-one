@@ -74,22 +74,22 @@ export default function Results() {
   }, [validResults, selectedPlan, searchQuery]);
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-gray-100">
+    <main className="min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <section className="max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-white">Results</h1>
-            <p className="text-sm text-gray-400 mt-1">
+            <h1 className="text-3xl font-semibold" style={{ color: "var(--text)" }}>Results</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
               Liste des cookies valides chargees depuis la validation.
             </p>
           </div>
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <label className="text-sm text-gray-300">Filtrer par plan :</label>
+              <label className="text-sm" style={{ color: "var(--text-muted)" }}>Filtrer par plan :</label>
               <select
                 value={selectedPlan}
                 onChange={(event) => setSelectedPlan(event.target.value)}
-                className="bg-[#16161e] border border-gray-700 text-sm text-gray-200 rounded px-3 py-2 focus:outline-none focus:border-red-500"
+                className="select-surface"
               >
                 {planOptions.map((plan) => (
                   <option key={plan} value={plan}>
@@ -99,13 +99,13 @@ export default function Results() {
               </select>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <label className="text-sm text-gray-300">Recherche profil :</label>
+              <label className="text-sm" style={{ color: "var(--text-muted)" }}>Recherche profil :</label>
               <input
                 type="search"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Nom de profil..."
-                className="bg-[#16161e] border border-gray-700 text-sm text-gray-200 rounded px-3 py-2 focus:outline-none focus:border-red-500"
+                className="input-surface"
               />
             </div>
           </div>
@@ -113,32 +113,33 @@ export default function Results() {
 
         <div className="mt-8 grid gap-4">
           {filteredResults.length === 0 ? (
-            <div className="rounded-2xl border border-gray-800 bg-[#111118] p-6 text-gray-400">
+            <div className="rounded-2xl border p-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
               <p>Aucun cookie valide trouve. Lancez une validation depuis la page Checker.</p>
             </div>
           ) : (
-                filteredResults.map((result) => (
+            filteredResults.map((result) => (
               <article
                 key={result.batchIndex}
-                className="rounded-xl border border-gray-800 bg-[#111118] p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3"
+                className="rounded-xl border p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3"
+                style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
               >
-                <div className="w-10 text-xs text-gray-400 font-mono">#{result.batchIndex}</div>
+                <div className="w-10 text-xs font-mono" style={{ color: "var(--text-muted)" }}>#{result.batchIndex}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
-                      <div className="text-sm text-white font-medium">{result.accountInfo?.profileName || result.accountInfo?.planName || "Utilisateur"}</div>
-                      <div className="text-xs text-gray-400 break-words">{result.accountInfo?.planName || "Plan inconnu"} • {result.accountInfo?.countryOfSignup || "--"}</div>
+                      <div className="text-sm font-medium" style={{ color: "var(--text)" }}>{result.accountInfo?.profileName || result.accountInfo?.planName || "Utilisateur"}</div>
+                      <div className="text-xs break-words" style={{ color: "var(--text-muted)" }}>{result.accountInfo?.planName || "Plan inconnu"} • {result.accountInfo?.countryOfSignup || "--"}</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => navigator.clipboard.writeText(result.netscapeFormat)}
-                        className="w-full text-xs text-gray-300 bg-[#1b1b26] border border-gray-800 px-3 py-1.5 rounded hover:bg-gray-700 sm:w-auto"
+                        className="btn-secondary w-full text-xs sm:w-auto"
                       >
                         Copier
                       </button>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-300 mt-1 break-words">{result.message}</div>
+                  <div className="text-xs mt-1 break-words" style={{ color: "var(--text-muted)" }}>{result.message}</div>
                 </div>
               </article>
             ))

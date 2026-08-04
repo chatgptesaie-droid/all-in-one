@@ -502,16 +502,16 @@ export default function Home() {
   }, [results]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-gray-200 flex flex-col overflow-x-hidden">
-      {/* Header - fixed */}
-      <header className="panel-surface border border-gray-800 px-4 py-4 shrink-0 z-10 sm:px-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between max-w-[1800px] mx-auto">
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
+      {/* Header */}
+      <header className="shrink-0 z-20 border-b px-4 py-3 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-white tracking-tight">
+            <h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--text)" }}>
               Netflix Cookie Validator
             </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Validation et extraction de donnees avec un design premium
+            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+              Validation et extraction de donnees
             </p>
           </div>
           <StatusBadge message={statusMessage} isValidating={isValidating} />
@@ -519,12 +519,12 @@ export default function Home() {
       </header>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col overflow-hidden min-h-0 lg:flex-row">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         {/* Main content */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0 lg:pr-[400px]">
-          {/* Toolbar - fixed */}
-          <div className="panel-surface border border-gray-800 px-4 py-4 shrink-0 z-10 sm:px-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center max-w-[1800px] mx-auto">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {/* Toolbar */}
+          <div className="shrink-0 z-10 border-b px-4 py-3 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <label className="btn-secondary w-full sm:w-auto">
                 Charger fichier
                 <input
@@ -551,7 +551,8 @@ export default function Home() {
 
               <label
                 htmlFor="use-online-files"
-                className="switch-control w-full sm:w-auto text-sm text-gray-300"
+                className="switch-control w-full sm:w-auto text-sm"
+                style={{ color: "var(--text)" }}
               >
                 <span className={`toggle-switch ${useOnlineFiles ? "toggle-switch--active" : ""}`} aria-hidden="true">
                   <span className={`toggle-switch__thumb ${useOnlineFiles ? "toggle-switch__thumb--active" : ""}`} />
@@ -566,7 +567,7 @@ export default function Home() {
                 <span className="font-medium">Utiliser fichiers en ligne</span>
               </label>
 
-              <div className="hidden h-6 w-px bg-gray-700 sm:mx-1 sm:block" />
+              <div className="hidden h-6 w-px sm:mx-1 sm:block" style={{ background: "var(--border)" }} />
 
               <button
                 onClick={startValidation}
@@ -584,7 +585,7 @@ export default function Home() {
 
               {validCount > 0 && !isValidating && (
                 <>
-                  <div className="hidden h-6 w-px bg-gray-700 sm:mx-1 sm:block" />
+                  <div className="hidden h-6 w-px sm:mx-1 sm:block" style={{ background: "var(--border)" }} />
                   <button onClick={exportTxt} className="btn-secondary w-full sm:w-auto">
                     Export TXT
                   </button>
@@ -595,7 +596,7 @@ export default function Home() {
               )}
 
               {fileLoaded && (
-                <span className="text-xs text-gray-500 sm:ml-auto">
+                <span className="text-xs sm:ml-auto" style={{ color: "var(--text-subtle)" }}>
                   {fileLoaded}
                 </span>
               )}
@@ -603,14 +604,14 @@ export default function Home() {
 
             {/* Progress */}
             {isValidating && (
-              <div className="max-w-[1800px] mx-auto mt-3">
-                <div className="flex justify-between text-[11px] text-gray-500 mb-1">
+              <div className="mt-3">
+                <div className="flex justify-between text-[11px] mb-1" style={{ color: "var(--text-subtle)" }}>
                   <span>
                     {results.length} / {totalBatches} traites
                   </span>
                   <span>{progress}%</span>
                 </div>
-                <div className="w-full bg-gray-800 rounded-full h-1.5">
+                <div className="w-full rounded-full h-1.5" style={{ background: "var(--border)" }}>
                   <div
                     className="bg-red-600 h-1.5 rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}
@@ -621,11 +622,11 @@ export default function Home() {
           </div>
 
           {useOnlineFiles && (
-            <div className="panel-surface p-4 max-w-[1800px] mx-auto w-full sm:p-6">
+            <div className="shrink-0 border-b px-4 py-3 sm:px-6" style={{ background: "var(--bg-surface-alt)", borderColor: "var(--border)" }}>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex-1 min-w-0 space-y-2">
-                  <div className="text-sm text-gray-200">Fichiers en ligne</div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-sm" style={{ color: "var(--text)" }}>Fichiers en ligne</div>
+                  <div className="text-xs" style={{ color: "var(--text-muted)" }}>
                     {isLoadingStorage && storageFolderFileCount > 0
                       ? `Chargement ${storageFolderLoadedCount}/${storageFolderFileCount} fichier(s)...`
                       : isLoadingStorage
@@ -671,8 +672,8 @@ export default function Home() {
 
           {/* Input area (shown when no results) */}
           {results.length === 0 && !isValidating && (
-            <div className="panel-surface p-4 shrink-0 max-w-[1800px] mx-auto w-full sm:p-6">
-              <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">
+            <div className="shrink-0 border-b px-4 py-4 sm:px-6" style={{ background: "var(--bg-surface-alt)", borderColor: "var(--border)" }}>
+              <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
                 Cookies (format Netscape ou texte brut)
               </label>
               <textarea
@@ -685,13 +686,13 @@ export default function Home() {
           )}
 
           {/* Results table - scrollable */}
-          <div className="flex-1 overflow-auto min-h-0">
+          <div className="flex-1 overflow-auto min-h-0" style={{ background: "var(--bg)" }}>
             {results.length > 0 && (
-              <div className="panel-surface max-w-[1800px] mx-auto px-4 py-4 sm:px-6 overflow-hidden">
-                <div className="overflow-x-auto">
+              <div className="px-4 py-3 sm:px-6">
+                <div className="overflow-x-auto rounded-xl border" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
                   <table className="min-w-[980px] w-full text-sm border-collapse">
-                    <thead className="sticky top-0 bg-[#0a0a0f] z-5">
-                      <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-800">
+                    <thead className="sticky top-0 z-10" style={{ background: "var(--bg-surface)" }}>
+                      <tr className="text-left text-[11px] uppercase tracking-wider border-b" style={{ color: "var(--text-subtle)", borderColor: "var(--border)" }}>
                         <th className="px-3 py-2.5 w-10">#</th>
                         <th className="px-3 py-2.5 w-20">Statut</th>
                         <th className="px-3 py-2.5">Profil</th>
@@ -707,47 +708,34 @@ export default function Home() {
                         <tr
                           key={idx}
                           onClick={() => setSelectedResult(result)}
-                          className={`border-b border-gray-800/50 cursor-pointer transition-colors ${
-                            selectedResult?.batchIndex === result.batchIndex
-                              ? "bg-[#1a1a2e]"
-                              : "hover:bg-[#12121a]"
-                          }`}
+                          className={`table-row-hover cursor-pointer ${selectedResult?.batchIndex === result.batchIndex ? "row-selected" : ""}`}
+                          style={{ borderBottom: "1px solid var(--border-subtle)" }}
                         >
-                          <td className="px-3 py-2.5 text-gray-500 font-mono text-xs">
+                          <td className="px-3 py-2.5 font-mono text-xs" style={{ color: "var(--text-subtle)" }}>
                             {result.batchIndex}
                           </td>
                           <td className="px-3 py-2.5">
-                            <span
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium ${
-                                result.isValid
-                                  ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/50"
-                                  : "bg-red-950/60 text-red-400 border border-red-800/50"
-                              }`}
-                            >
-                              <span
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  result.isValid ? "bg-emerald-400" : "bg-red-400"
-                                }`}
-                              />
+                            <span className={result.isValid ? "badge-valid" : "badge-invalid"}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${result.isValid ? "bg-emerald-400" : "bg-red-400"}`} />
                               {result.isValid ? "Valide" : "Invalide"}
                             </span>
                           </td>
-                          <td className="px-3 py-2.5 text-gray-300 text-xs">
+                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text)" }}>
                             {decodeEscapes(result.accountInfo?.profileName || "") || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-gray-300 text-xs">
+                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text)" }}>
                             {decodeEscapes(result.accountInfo?.planName || result.accountInfo?.plan || result.accountInfo?.plan_label || "") || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-gray-400 text-xs">
+                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text-muted)" }}>
                             {result.accountInfo?.countryOfSignup || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-gray-400 text-xs">
+                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text-muted)" }}>
                             {decodeEscapes(result.accountInfo?.nextBillingDate || "") || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-gray-500 text-xs truncate max-w-[180px]">
+                          <td className="px-3 py-2.5 text-xs truncate max-w-[180px]" style={{ color: "var(--text-subtle)" }}>
                             {(result.accountInfo?.final_url as string) || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-gray-500 text-xs truncate max-w-[200px]">
+                          <td className="px-3 py-2.5 text-xs truncate max-w-[200px]" style={{ color: "var(--text-subtle)" }}>
                             {result.message}
                           </td>
                         </tr>
@@ -760,36 +748,36 @@ export default function Home() {
           </div>
 
           {selectedResult && (
-            <div className="panel-surface border border-gray-800 lg:hidden">
+            <div className="border-t lg:hidden overflow-y-auto max-h-[50vh]" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
               <ResultDetails result={selectedResult} />
             </div>
           )}
 
-          {/* Stats footer - fixed */}
+          {/* Stats footer */}
           {results.length > 0 && (
-            <div className="panel-surface border-t border-gray-800 px-4 py-2.5 shrink-0 z-10 sm:px-6">
-              <div className="flex flex-wrap items-center gap-3 text-xs max-w-[1800px] mx-auto sm:gap-6">
-                <span className="text-gray-500">
+            <div className="shrink-0 z-10 border-t px-4 py-2.5 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+              <div className="flex flex-wrap items-center gap-3 text-xs sm:gap-6">
+                <span style={{ color: "var(--text-muted)" }}>
                   Total:{" "}
-                  <span className="text-gray-300 font-medium">
+                  <span className="font-medium" style={{ color: "var(--text)" }}>
                     {results.length}
                   </span>
                 </span>
-                <span className="text-gray-500">
+                <span style={{ color: "var(--text-muted)" }}>
                   Valides:{" "}
-                  <span className="text-emerald-400 font-medium">
+                  <span className="text-emerald-500 font-medium">
                     {validCount}
                   </span>
                 </span>
-                <span className="text-gray-500">
+                <span style={{ color: "var(--text-muted)" }}>
                   Invalides:{" "}
                   <span className="text-red-400 font-medium">
                     {invalidCount}
                   </span>
                 </span>
-                <span className="text-gray-500">
+                <span style={{ color: "var(--text-muted)" }}>
                   Taux:{" "}
-                  <span className="text-gray-300 font-medium">
+                  <span className="font-medium" style={{ color: "var(--text)" }}>
                     {results.length > 0
                       ? Math.round((validCount / results.length) * 100)
                       : 0}
@@ -801,13 +789,13 @@ export default function Home() {
           )}
         </div>
 
-        {/* Right panel - Details (fixed) */}
-        <aside className="hidden lg:block w-[400px] bg-[#111118] border-l border-gray-800 overflow-y-auto fixed right-0 top-0 bottom-0 pt-[73px]">
+        {/* Right panel - Details */}
+        <aside className="hidden lg:flex lg:flex-col w-[400px] border-l overflow-y-auto" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
           {selectedResult ? (
             <ResultDetails result={selectedResult} />
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm" style={{ color: "var(--text-subtle)" }}>
                 Selectionnez un resultat
               </p>
             </div>
@@ -832,7 +820,7 @@ function StatusBadge({
       {isValidating && (
         <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
       )}
-      <span className="text-xs text-gray-500">{message}</span>
+      <span className="text-xs" style={{ color: "var(--text-muted)" }}>{message}</span>
     </div>
   );
 }
@@ -844,30 +832,20 @@ function ResultDetails({ result }: { result: ValidationResult }) {
   return (
     <div className="p-4 space-y-4 sm:p-5 sm:space-y-5">
       {/* Status header */}
-      <div
-        className={`p-3 rounded-lg border ${
-          result.isValid
-            ? "bg-emerald-950/30 border-emerald-800/40"
-            : "bg-red-950/30 border-red-800/40"
-        }`}
-      >
-        <p
-          className={`text-sm font-medium ${
-            result.isValid ? "text-emerald-400" : "text-red-400"
-          }`}
-        >
+      <div className={result.isValid ? "detail-valid" : "detail-invalid"}>
+        <p className={`text-sm font-medium ${result.isValid ? "detail-valid-text" : "detail-invalid-text"}`}>
           {result.isValid ? "Cookie Valide" : "Cookie Invalide"}
         </p>
-        <p className="text-xs text-gray-500 mt-0.5">{result.message}</p>
+        <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{result.message}</p>
       </div>
 
       {/* Final URL */}
       {info?.final_url && (
         <section>
-          <h3 className="text-[11px] uppercase tracking-wider text-gray-500 font-medium mb-2">
+          <h3 className="text-[11px] uppercase tracking-wider font-medium mb-2" style={{ color: "var(--text-subtle)" }}>
             URL finale
           </h3>
-          <p className="text-xs text-gray-400 font-mono bg-[#0a0a0f] rounded-lg p-3 border border-gray-800 break-all">
+          <p className="text-xs font-mono rounded-lg p-3 border break-all" style={{ color: "var(--text-muted)", background: "var(--bg)", borderColor: "var(--border)" }}>
             {info.final_url as string}
           </p>
         </section>
@@ -877,17 +855,18 @@ function ResultDetails({ result }: { result: ValidationResult }) {
       {result.netflixId && (
         <section>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-[11px] uppercase tracking-wider text-gray-500 font-medium">
+            <h3 className="text-[11px] uppercase tracking-wider font-medium" style={{ color: "var(--text-subtle)" }}>
               NetflixId
             </h3>
             <button
               onClick={() => navigator.clipboard.writeText(result.netflixId!)}
-              className="text-[11px] text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-[11px] transition-colors hover:opacity-70"
+              style={{ color: "var(--text-muted)" }}
             >
               Copier
             </button>
           </div>
-          <pre className="text-[11px] text-gray-400 font-mono bg-[#0a0a0f] rounded-lg p-3 border border-gray-800 whitespace-pre-wrap break-all max-h-24 overflow-auto">
+          <pre className="text-[11px] font-mono rounded-lg p-3 border whitespace-pre-wrap break-all max-h-24 overflow-auto" style={{ color: "var(--text-muted)", background: "var(--bg)", borderColor: "var(--border)" }}>
             {result.netflixId}
           </pre>
         </section>
@@ -896,7 +875,7 @@ function ResultDetails({ result }: { result: ValidationResult }) {
       {/* Account info */}
       {result.isValid && Object.keys(info).length > 0 && (
         <section>
-          <h3 className="text-[11px] uppercase tracking-wider text-gray-500 font-medium mb-3">
+          <h3 className="text-[11px] uppercase tracking-wider font-medium mb-3" style={{ color: "var(--text-subtle)" }}>
             Informations du compte
           </h3>
           <div className="space-y-2">
@@ -926,30 +905,31 @@ function ResultDetails({ result }: { result: ValidationResult }) {
       {/* Cookies */}
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-[11px] uppercase tracking-wider text-gray-500 font-medium">
+          <h3 className="text-[11px] uppercase tracking-wider font-medium" style={{ color: "var(--text-subtle)" }}>
             Cookies (Netscape)
           </h3>
           <div className="flex gap-2">
             <button
               onClick={() => setShowFullCookies(!showFullCookies)}
-              className="text-[11px] text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-[11px] transition-colors hover:opacity-70"
+              style={{ color: "var(--text-muted)" }}
             >
               {showFullCookies ? "Reduire" : "Tout afficher"}
             </button>
             <button
-              onClick={() =>
-                navigator.clipboard.writeText(result.netscapeFormat)
-              }
-              className="text-[11px] text-gray-500 hover:text-gray-300 transition-colors"
+              onClick={() => navigator.clipboard.writeText(result.netscapeFormat)}
+              className="text-[11px] transition-colors hover:opacity-70"
+              style={{ color: "var(--text-muted)" }}
             >
               Copier
             </button>
           </div>
         </div>
         <pre
-          className={`text-[11px] text-gray-500 font-mono bg-[#0a0a0f] rounded-lg p-3 border border-gray-800 whitespace-pre-wrap break-all ${
+          className={`text-[11px] font-mono rounded-lg p-3 border whitespace-pre-wrap break-all ${
             showFullCookies ? "" : "max-h-28 overflow-hidden"
           }`}
+          style={{ color: "var(--text-subtle)", background: "var(--bg)", borderColor: "var(--border)" }}
         >
           {result.netscapeFormat}
         </pre>
@@ -957,16 +937,16 @@ function ResultDetails({ result }: { result: ValidationResult }) {
 
       {/* Cookie list */}
       <section>
-        <h3 className="text-[11px] uppercase tracking-wider text-gray-500 font-medium mb-2">
+        <h3 className="text-[11px] uppercase tracking-wider font-medium mb-2" style={{ color: "var(--text-subtle)" }}>
           Detail des cookies ({result.cookiesData.length})
         </h3>
-        <div className="bg-[#0a0a0f] rounded-lg border border-gray-800 divide-y divide-gray-800/50">
+        <div className="rounded-lg border divide-y" style={{ background: "var(--bg)", borderColor: "var(--border)" }}>
           {result.cookiesData.map((cookie, idx) => (
-            <div key={idx} className="px-3 py-2 flex items-center gap-3">
+            <div key={idx} className="px-3 py-2 flex items-center gap-3" style={{ borderColor: "var(--border-subtle)" }}>
               <span className="text-[11px] text-amber-500/80 font-medium shrink-0 w-[130px] truncate">
                 {cookie.name}
               </span>
-              <span className="text-[11px] text-gray-600 truncate flex-1">
+              <span className="text-[11px] truncate flex-1" style={{ color: "var(--text-subtle)" }}>
                 {cookie.value.length > 60
                   ? cookie.value.substring(0, 60) + "..."
                   : cookie.value}
@@ -974,7 +954,8 @@ function ResultDetails({ result }: { result: ValidationResult }) {
               {cookie.name === "NetflixId" && (
                 <button
                   onClick={() => navigator.clipboard.writeText(cookie.value)}
-                  className="shrink-0 text-[10px] text-gray-500 hover:text-white bg-[#1e1e2a] border border-gray-700 hover:border-gray-500 px-2 py-0.5 rounded transition-colors"
+                  className="shrink-0 text-[10px] px-2 py-0.5 rounded transition-colors hover:opacity-80"
+                  style={{ color: "var(--text-muted)", background: "var(--bg-surface-alt)", border: "1px solid var(--border)" }}
                 >
                   Copier
                 </button>
@@ -996,9 +977,9 @@ function InfoRow({
 }) {
   if (!value) return null;
   return (
-    <div className="flex items-baseline justify-between gap-4 py-1.5 border-b border-gray-800/40">
-      <span className="text-xs text-gray-500 shrink-0">{label}</span>
-      <span className="text-xs text-gray-200 text-right truncate">
+    <div className="flex items-baseline justify-between gap-4 py-1.5 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+      <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>{label}</span>
+      <span className="text-xs text-right truncate" style={{ color: "var(--text)" }}>
         {value}
       </span>
     </div>
