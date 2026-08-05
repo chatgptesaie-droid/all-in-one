@@ -181,14 +181,14 @@ export default function PrimePage() {
             {results.length > 0 && (
               <div className="px-4 py-3 sm:px-6">
                 <div className="overflow-x-auto rounded-xl border" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
-                  <table className="min-w-[700px] w-full text-sm border-collapse">
+                  <table className="min-w-[500px] w-full text-sm border-collapse">
                     <thead className="sticky top-0 z-10" style={{ background: "var(--bg-surface)" }}>
                       <tr className="text-left text-[11px] uppercase tracking-wider border-b" style={{ color: "var(--text-subtle)", borderColor: "var(--border)" }}>
-                        <th className="px-3 py-2.5 w-10">#</th>
+                        <th className="px-3 py-2.5 w-8">#</th>
                         <th className="px-3 py-2.5 w-20">Statut</th>
                         <th className="px-3 py-2.5">Plan</th>
-                        <th className="px-3 py-2.5">Lien final</th>
-                        <th className="px-3 py-2.5">Message</th>
+                        <th className="px-3 py-2.5 hidden sm:table-cell">Lien final</th>
+                        <th className="px-3 py-2.5 hidden sm:table-cell">Message</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -206,8 +206,8 @@ export default function PrimePage() {
                             </span>
                           </td>
                           <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text)" }}>{result.accountInfo?.plan || result.accountInfo?.plan_label || "-"}</td>
-                          <td className="px-3 py-2.5 text-xs truncate max-w-[200px]" style={{ color: "var(--text-subtle)" }}>{result.accountInfo?.final_url || "-"}</td>
-                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text-subtle)" }}>{result.message}</td>
+                          <td className="px-3 py-2.5 text-xs truncate max-w-[200px] hidden sm:table-cell" style={{ color: "var(--text-subtle)" }}>{result.accountInfo?.final_url || "-"}</td>
+                          <td className="px-3 py-2.5 text-xs hidden sm:table-cell" style={{ color: "var(--text-subtle)" }}>{result.message}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -217,9 +217,12 @@ export default function PrimePage() {
             )}
           </div>
 
-          {/* Mobile detail panel */}
           {selectedResult && (
-            <div className="border-t lg:hidden overflow-y-auto max-h-[50vh]" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+            <div className="border-t lg:hidden overflow-y-auto max-h-[55vh]" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+              <div className="flex items-center justify-between px-4 py-2 border-b" style={{ borderColor: "var(--border)" }}>
+                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-subtle)" }}>Détail #{selectedResult.batchIndex}</span>
+                <button onClick={() => setSelectedResult(null)} className="text-xs px-2 py-1 rounded" style={{ color: "var(--text-muted)", background: "var(--bg-surface-alt)" }}>✕ Fermer</button>
+              </div>
               <PrimeDetails result={selectedResult} />
             </div>
           )}

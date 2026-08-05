@@ -660,7 +660,7 @@ export default function Home() {
                     disabled={isLoadingStorage || !selectedStoragePath}
                     className="btn-primary w-full sm:w-auto"
                   >
-                    {isLoadingStorage ? "Chargement..." : "Charger depuis Supabase"}
+                    {isLoadingStorage ? "Chargement..." : "Charger!"}
                   </button>
                 </div>
               </div>
@@ -690,17 +690,17 @@ export default function Home() {
             {results.length > 0 && (
               <div className="px-4 py-3 sm:px-6">
                 <div className="overflow-x-auto rounded-xl border" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
-                  <table className="min-w-[980px] w-full text-sm border-collapse">
+                  <table className="min-w-[600px] w-full text-sm border-collapse">
                     <thead className="sticky top-0 z-10" style={{ background: "var(--bg-surface)" }}>
                       <tr className="text-left text-[11px] uppercase tracking-wider border-b" style={{ color: "var(--text-subtle)", borderColor: "var(--border)" }}>
-                        <th className="px-3 py-2.5 w-10">#</th>
+                        <th className="px-3 py-2.5 w-8">#</th>
                         <th className="px-3 py-2.5 w-20">Statut</th>
                         <th className="px-3 py-2.5">Profil</th>
-                        <th className="px-3 py-2.5">Plan</th>
-                        <th className="px-3 py-2.5">Pays</th>
-                        <th className="px-3 py-2.5">Facturation</th>
-                        <th className="px-3 py-2.5">URL finale</th>
-                        <th className="px-3 py-2.5">Message</th>
+                        <th className="px-3 py-2.5 hidden sm:table-cell">Plan</th>
+                        <th className="px-3 py-2.5 hidden md:table-cell">Pays</th>
+                        <th className="px-3 py-2.5 hidden lg:table-cell">Facturation</th>
+                        <th className="px-3 py-2.5 hidden xl:table-cell">URL finale</th>
+                        <th className="px-3 py-2.5 hidden sm:table-cell">Message</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -723,19 +723,19 @@ export default function Home() {
                           <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text)" }}>
                             {decodeEscapes(result.accountInfo?.profileName || "") || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text)" }}>
+                          <td className="px-3 py-2.5 text-xs hidden sm:table-cell" style={{ color: "var(--text)" }}>
                             {decodeEscapes(result.accountInfo?.planName || result.accountInfo?.plan || result.accountInfo?.plan_label || "") || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text-muted)" }}>
+                          <td className="px-3 py-2.5 text-xs hidden md:table-cell" style={{ color: "var(--text-muted)" }}>
                             {result.accountInfo?.countryOfSignup || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text-muted)" }}>
+                          <td className="px-3 py-2.5 text-xs hidden lg:table-cell" style={{ color: "var(--text-muted)" }}>
                             {decodeEscapes(result.accountInfo?.nextBillingDate || "") || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-xs truncate max-w-[180px]" style={{ color: "var(--text-subtle)" }}>
+                          <td className="px-3 py-2.5 text-xs truncate max-w-[160px] hidden xl:table-cell" style={{ color: "var(--text-subtle)" }}>
                             {(result.accountInfo?.final_url as string) || "-"}
                           </td>
-                          <td className="px-3 py-2.5 text-xs truncate max-w-[200px]" style={{ color: "var(--text-subtle)" }}>
+                          <td className="px-3 py-2.5 text-xs truncate max-w-[180px] hidden sm:table-cell" style={{ color: "var(--text-subtle)" }}>
                             {result.message}
                           </td>
                         </tr>
@@ -748,7 +748,19 @@ export default function Home() {
           </div>
 
           {selectedResult && (
-            <div className="border-t lg:hidden overflow-y-auto max-h-[50vh]" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+            <div className="border-t lg:hidden overflow-y-auto max-h-[55vh]" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+              <div className="flex items-center justify-between px-4 py-2 border-b" style={{ borderColor: "var(--border)" }}>
+                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-subtle)" }}>
+                  Détail #{selectedResult.batchIndex}
+                </span>
+                <button
+                  onClick={() => setSelectedResult(null)}
+                  className="text-xs px-2 py-1 rounded"
+                  style={{ color: "var(--text-muted)", background: "var(--bg-surface-alt)" }}
+                >
+                  ✕ Fermer
+                </button>
+              </div>
               <ResultDetails result={selectedResult} />
             </div>
           )}

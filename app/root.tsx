@@ -101,7 +101,35 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     })}
                     end
                   >
-                    Checker
+                    Netflix
+                  </NavLink>
+                  <NavLink
+                    to="/prime"
+                    onClick={closeMenu}
+                    style={({ isActive }) => ({
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      color: isActive ? "var(--text)" : "var(--text-muted)",
+                      borderBottom: isActive ? "2px solid #ef4444" : "2px solid transparent",
+                      paddingBottom: "2px",
+                      textDecoration: "none",
+                    })}
+                  >
+                    Prime
+                  </NavLink>
+                  <NavLink
+                    to="/spotify"
+                    onClick={closeMenu}
+                    style={({ isActive }) => ({
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      color: isActive ? "var(--text)" : "var(--text-muted)",
+                      borderBottom: isActive ? "2px solid #ef4444" : "2px solid transparent",
+                      paddingBottom: "2px",
+                      textDecoration: "none",
+                    })}
+                  >
+                    Spotify
                   </NavLink>
                   <NavLink
                     to="/directlogin"
