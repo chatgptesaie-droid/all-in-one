@@ -78,6 +78,42 @@ select {
   background: var(--scrollbar-hover);
 }
 
+#telegram-icon {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #229ED9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: pulse 2s infinite;
+}
+
+#telegram-icon:hover {
+  transform: scale(1.15) rotate(360deg);
+  box-shadow: 0 8px 20px rgba(34, 158, 217, 0.45);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 158, 217, 0.5);
+  }
+
+  70% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 12px rgba(34, 158, 217, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 158, 217, 0);
+  }
+}
+
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold rounded-2xl transition-all duration-200 ease-out shadow-lg shadow-[#fb718536];

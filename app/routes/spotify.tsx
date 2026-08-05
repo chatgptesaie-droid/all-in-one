@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import * as validator from "../lib/spotify.validator";
+import { FaTelegramPlane } from "react-icons/fa";
 
 type CookieEntry = {
   domain: string;
@@ -122,22 +123,53 @@ export default function SpotifyPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
       {/* Header */}
-      <header className="shrink-0 z-20 border-b px-4 py-3 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--text)" }}>
-              Spotify Cookie Validator
-            </h1>
-            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-              Validation et extraction de données
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {isValidating && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
-            <span className="text-xs" style={{ color: "var(--text-muted)" }}>{statusMessage}</span>
-          </div>
-        </div>
-      </header>
+      <header
+              className="shrink-0 z-20 border-b px-4 py-3 sm:px-6"
+              style={{
+                background: "var(--bg-surface)",
+                borderColor: "var(--border)",
+              }}
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1
+                      className="text-xl font-semibold tracking-tight"
+                      style={{ color: "var(--text)" }}
+                    >
+                      Spotify fucker by
+                    </h1>
+      
+                    <a
+                      href="https://t.me/Antony0206"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Telegram"
+                      id="telegram-icon"
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md transition-transform hover:scale-105 hover:shadow-lg"
+                    >
+                      <FaTelegramPlane
+                        size={22}
+                        className="text-[#0088cc]"
+      
+                      />
+                    </a>
+                  </div>
+      
+                  <p
+                    className="mt-1 text-sm"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Validation et extraction de données
+                  </p>
+                </div>
+      
+                {/* <StatusBadge
+                  message={statusMessage}
+                  isValidating={isValidating}
+                /> */}
+              </div>
+            </header>
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden min-h-0">

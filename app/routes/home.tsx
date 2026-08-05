@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import * as validator from "../lib/validator";
 import type { Route } from "./+types/home";
-
-export function meta({}: Route.MetaArgs) {
+import { FaTelegramPlane } from "react-icons/fa";
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Netflix Cookies Validator" },
     {
@@ -504,17 +504,51 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
       {/* Header */}
-      <header className="shrink-0 z-20 border-b px-4 py-3 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+      <header
+        className="shrink-0 z-20 border-b px-4 py-3 sm:px-6"
+        style={{
+          background: "var(--bg-surface)",
+          borderColor: "var(--border)",
+        }}
+      >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--text)" }}>
-              Netflix Cookie Validator
-            </h1>
-            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-              Validation et extraction de donnees
+            <div className="flex items-center gap-2">
+              <h1
+                className="text-xl font-semibold tracking-tight"
+                style={{ color: "var(--text)" }}
+              >
+                Netflix fucker by
+              </h1>
+
+              <a
+                href="https://t.me/Antony0206"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Telegram"
+                id="telegram-icon"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md transition-transform hover:scale-105 hover:shadow-lg"
+              >
+                <FaTelegramPlane
+                  size={22}
+                  className="text-[#0088cc]"
+
+                />
+              </a>
+            </div>
+
+            <p
+              className="mt-1 text-sm"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Validation et extraction de données
             </p>
           </div>
-          <StatusBadge message={statusMessage} isValidating={isValidating} />
+
+          <StatusBadge
+            message={statusMessage}
+            isValidating={isValidating}
+          />
         </div>
       </header>
 
@@ -630,10 +664,10 @@ export default function Home() {
                     {isLoadingStorage && storageFolderFileCount > 0
                       ? `Chargement ${storageFolderLoadedCount}/${storageFolderFileCount} fichier(s)...`
                       : isLoadingStorage
-                      ? "Chargement des fichiers..."
-                      : storageFiles.length > 0
-                      ? `${storageFiles.length} fichier(s) disponibles`
-                      : "Aucun fichier en ligne trouvé."}
+                        ? "Chargement des fichiers..."
+                        : storageFiles.length > 0
+                          ? `${storageFiles.length} fichier(s) disponibles`
+                          : "Aucun fichier en ligne trouvé."}
                   </div>
                 </div>
 
@@ -938,9 +972,8 @@ function ResultDetails({ result }: { result: ValidationResult }) {
           </div>
         </div>
         <pre
-          className={`text-[11px] font-mono rounded-lg p-3 border whitespace-pre-wrap break-all ${
-            showFullCookies ? "" : "max-h-28 overflow-hidden"
-          }`}
+          className={`text-[11px] font-mono rounded-lg p-3 border whitespace-pre-wrap break-all ${showFullCookies ? "" : "max-h-28 overflow-hidden"
+            }`}
           style={{ color: "var(--text-subtle)", background: "var(--bg)", borderColor: "var(--border)" }}
         >
           {result.netscapeFormat}

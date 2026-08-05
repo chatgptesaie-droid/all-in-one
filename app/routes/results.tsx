@@ -114,7 +114,7 @@ export default function Results() {
         <div className="mt-8 grid gap-4">
           {filteredResults.length === 0 ? (
             <div className="rounded-2xl border p-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
-              <p>Aucun cookie valide trouve. Lancez une validation depuis la page Checker.</p>
+              <p>Aucun cookie valide trouve. Lancez une validation depuis la page Netflix.</p>
             </div>
           ) : (
             filteredResults.map((result) => (

@@ -131,7 +131,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   >
                     Spotify
                   </NavLink>
-                  <NavLink
+                  {/* <NavLink
                     to="/directlogin"
                     onClick={closeMenu}
                     style={({ isActive }) => ({
@@ -144,7 +144,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     })}
                   >
                     Direct Login
-                  </NavLink>
+                  </NavLink> */}
                   <NavLink
                     to="/results"
                     onClick={closeMenu}
