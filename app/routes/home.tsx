@@ -660,7 +660,7 @@ export default function Home() {
                     disabled={isLoadingStorage || !selectedStoragePath}
                     className="btn-primary w-full sm:w-auto"
                   >
-                    {isLoadingStorage ? "Chargement..." : "Charger!"}
+                    {isLoadingStorage ? "Chargement..." : "Charger les données"}
                   </button>
                 </div>
               </div>
