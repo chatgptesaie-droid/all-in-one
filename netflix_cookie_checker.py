@@ -65,6 +65,21 @@ class NetflixCookieChecker:
         
         return True, "Structure valide"
     
+    def _is_browse_url(self, url_value: str) -> bool:
+        """Retourne True si l'URL pointe vers https://www.netflix.com/browse"""
+        try:
+            from urllib.parse import urljoin, urlparse
+
+            normalized = urljoin('https://www.netflix.com', url_value)
+            parsed = urlparse(normalized)
+            return (
+                parsed.scheme == 'https'
+                and parsed.netloc == 'www.netflix.com'
+                and parsed.path.rstrip('/') == '/browse'
+            )
+        except Exception:
+            return False
+
     def test_cookie_validity(self, cookies_data: Dict) -> Tuple[bool, str, Dict]:
         """Teste la validité du cookie en faisant une requête à Netflix"""
         try:
@@ -89,17 +104,23 @@ class NetflixCookieChecker:
                 # Vérifier si on est redirigé vers login
                 if 'login' in response.url.lower():
                     return False, "Cookie invalide - Redirection vers login", {"status_code": response.status_code, "final_url": response.url}
-                else:
-                    is_valid = True
-                    extra_info = {"status_code": response.status_code, "final_url": response.url}
+
+                if not self._is_browse_url(response.url):
+                    return False, "Cookie invalide - Lien final non /browse", {"status_code": response.status_code, "final_url": response.url}
+
+                is_valid = True
+                extra_info = {"status_code": response.status_code, "final_url": response.url}
             elif response.status_code == 302 or response.status_code == 301:
                 # Redirection
                 location = response.headers.get('Location', '')
                 if 'login' in location.lower():
                     return False, "Cookie expiré - Redirection vers login", {"status_code": response.status_code, "location": location}
-                else:
-                    is_valid = True
-                    extra_info = {"status_code": response.status_code, "location": location}
+
+                if not self._is_browse_url(location):
+                    return False, "Cookie invalide - Lien final non /browse", {"status_code": response.status_code, "location": location}
+
+                is_valid = True
+                extra_info = {"status_code": response.status_code, "location": location}
             elif response.status_code == 421:
                 # Misdirected Request - traité comme invalide
                 return False, "Cookie invalide - Requête mal dirigée", {"status_code": response.status_code}

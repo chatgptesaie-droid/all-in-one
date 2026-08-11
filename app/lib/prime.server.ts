@@ -192,6 +192,7 @@ function classifyPrimeHtml(html: string, finalUrl: string, hasSignedInSignals: b
 } {
   const normalized = html.replace(/\s+/g, " ").toLowerCase();
   const profiles = extractPrimeProfiles(html);
+  const profileCount = profiles.names.length;
 
   if (/inscrivez[- ]vous[\s\u00a0]+à[\s\u00a0]+amazon[\s\u00a0]+prime|amazon[\s\u00a0]+prime[\s\u00a0]+inscrivez[- ]vous/i.test(normalized)) {
     return {
@@ -200,42 +201,30 @@ function classifyPrimeHtml(html: string, finalUrl: string, hasSignedInSignals: b
       isValid: false,
       message: "Compte invalide - page d'inscription Prime détectée",
       profiles: profiles.names,
-      profileCount: profiles.names.length,
+      profileCount,
       activeProfileName: profiles.activeProfileName,
     };
   }
 
-  if (normalized.includes("join prime")) {
+  if (profileCount === 0) {
     return {
-      plan: "Free",
-      source: "join-prime-detected",
-      isValid: true,
-      message: "Compte Prime Video détecté",
+      plan: "Invalid",
+      source: "no-profiles",
+      isValid: false,
+      message: "Cookie invalide - aucun profil détecté",
       profiles: profiles.names,
-      profileCount: profiles.names.length,
-      activeProfileName: profiles.activeProfileName,
-    };
-  }
-
-  if (hasSignedInSignals || /primevideo|pv-/.test(finalUrl) || normalized.includes("prime video") || normalized.includes("continue watching") || normalized.includes("watchlist")) {
-    return {
-      plan: "Premium",
-      source: "prime-home-detected",
-      isValid: true,
-      message: "Compte Prime Video détecté",
-      profiles: profiles.names,
-      profileCount: profiles.names.length,
+      profileCount,
       activeProfileName: profiles.activeProfileName,
     };
   }
 
   return {
-    plan: "Unknown",
-    source: "no-signal",
+    plan: "Premium",
+    source: "prime-home-detected",
     isValid: true,
-    message: "Compte Prime Video détecté",
+    message: "Compte Prime Video valide - profils détectés",
     profiles: profiles.names,
-    profileCount: profiles.names.length,
+    profileCount,
     activeProfileName: profiles.activeProfileName,
   };
 }

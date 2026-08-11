@@ -467,6 +467,14 @@ async function testCookieValidity(
         };
       }
 
+      if (!isBrowseUrl(finalUrl)) {
+        return {
+          isValid: false,
+          message: "Cookie invalide - Lien final non /browse",
+          extraInfo: { accountStatus: "Invalid", final_url: finalUrl },
+        };
+      }
+
       // Cookie valide - aller chercher les infos du compte
       let isValid = true;
       extraInfo.accountStatus = "Active";
@@ -501,6 +509,15 @@ async function testCookieValidity(
           extraInfo: { accountStatus: "Expired", final_url: location },
         };
       }
+
+      if (!isBrowseUrl(location)) {
+        return {
+          isValid: false,
+          message: "Cookie invalide - Lien final non /browse",
+          extraInfo: { accountStatus: "Invalid", final_url: location },
+        };
+      }
+
       return {
         isValid: true,
         message: "Cookie valide - Acces autorise",
@@ -652,6 +669,19 @@ function parseAccountHtml(html: string, info: AccountInfo): void {
     info.accountStatus = "Active";
   } else if (html.includes('"isActiveOrOnHold":false,')) {
     info.accountStatus = "On Hold";
+  }
+}
+
+function isBrowseUrl(urlValue: string): boolean {
+  try {
+    const normalized = new URL(urlValue, "https://www.netflix.com");
+    return (
+      normalized.protocol === "https:"
+      && normalized.hostname === "www.netflix.com"
+      && normalized.pathname.replace(/\/+$/, "") === "/browse"
+    );
+  } catch {
+    return false;
   }
 }
 

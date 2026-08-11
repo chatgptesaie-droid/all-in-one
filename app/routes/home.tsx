@@ -449,6 +449,16 @@ export default function Home() {
     [fetchStorageFiles]
   );
 
+  const resetInput = useCallback(() => {
+    setCookieText("");
+    setResults([]);
+    setSelectedResult(null);
+    setFileLoaded(null);
+    setStatusMessage("Pret");
+    setProgress(0);
+    setTotalBatches(0);
+  }, []);
+
   const startValidation = useCallback(() => {
     if (!cookieText.trim()) {
       setStatusMessage("Aucun cookie a tester");
@@ -609,6 +619,14 @@ export default function Home() {
                 className="btn-primary w-full sm:w-auto"
               >
                 {isValidating ? "Validation..." : "Lancer la validation"}
+              </button>
+
+              <button
+                onClick={resetInput}
+                disabled={isValidating && true}
+                className="btn-secondary w-full sm:w-auto"
+              >
+                Reset
               </button>
 
               {isValidating && (

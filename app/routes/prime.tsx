@@ -101,6 +101,16 @@ export default function PrimePage() {
     });
   }, []);
 
+  const reset = useCallback(() => {
+    setCookieText("");
+    setResults([]);
+    setSelectedResult(null);
+    setFileLoaded(null);
+    setProgress(0);
+    setTotalBatches(0);
+    setStatusMessage("Pret");
+  }, []);
+
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
       {/* Header */}
@@ -170,6 +180,9 @@ export default function PrimePage() {
               <div className="hidden h-6 w-px sm:mx-1 sm:block" style={{ background: "var(--border)" }} />
               <button onClick={start} disabled={isValidating || !cookieText.trim()} className="btn-primary w-full sm:w-auto">
                 {isValidating ? "Validation..." : "Lancer la validation"}
+              </button>
+              <button onClick={reset} disabled={isValidating} className="btn-secondary w-full sm:w-auto">
+                Reset
               </button>
               {isValidating && (
                 <button onClick={stop} className="btn-danger w-full sm:w-auto">Arrêter</button>
