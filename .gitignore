@@ -7,3 +7,5 @@
 /build/
 .env.example
 process.env
+__pycache__/
+*.pyc
