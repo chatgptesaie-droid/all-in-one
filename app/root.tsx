@@ -87,78 +87,34 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
               {/* Nav links */}
               <div className={`flex-1 ${isMenuOpen ? "block" : "hidden"} sm:block`}>
-                <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-6 sm:pt-0">
-                  <NavLink
-                    to="/"
-                    onClick={closeMenu}
-                    style={({ isActive }) => ({
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      color: isActive ? "var(--text)" : "var(--text-muted)",
-                      borderBottom: isActive ? "2px solid #ef4444" : "2px solid transparent",
-                      paddingBottom: "2px",
-                      textDecoration: "none",
-                    })}
-                    end
-                  >
-                    Netflix
-                  </NavLink>
-                  <NavLink
-                    to="/prime"
-                    onClick={closeMenu}
-                    style={({ isActive }) => ({
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      color: isActive ? "var(--text)" : "var(--text-muted)",
-                      borderBottom: isActive ? "2px solid #ef4444" : "2px solid transparent",
-                      paddingBottom: "2px",
-                      textDecoration: "none",
-                    })}
-                  >
-                    Prime
-                  </NavLink>
-                  <NavLink
-                    to="/spotify"
-                    onClick={closeMenu}
-                    style={({ isActive }) => ({
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      color: isActive ? "var(--text)" : "var(--text-muted)",
-                      borderBottom: isActive ? "2px solid #ef4444" : "2px solid transparent",
-                      paddingBottom: "2px",
-                      textDecoration: "none",
-                    })}
-                  >
-                    Spotify
-                  </NavLink>
-                  {/* <NavLink
-                    to="/directlogin"
-                    onClick={closeMenu}
-                    style={({ isActive }) => ({
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      color: isActive ? "var(--text)" : "var(--text-muted)",
-                      borderBottom: isActive ? "2px solid #ef4444" : "2px solid transparent",
-                      paddingBottom: "2px",
-                      textDecoration: "none",
-                    })}
-                  >
-                    Direct Login
-                  </NavLink> */}
-                  <NavLink
-                    to="/results"
-                    onClick={closeMenu}
-                    style={({ isActive }) => ({
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      color: isActive ? "var(--text)" : "var(--text-muted)",
-                      borderBottom: isActive ? "2px solid #ef4444" : "2px solid transparent",
-                      paddingBottom: "2px",
-                      textDecoration: "none",
-                    })}
-                  >
-                    Results
-                  </NavLink>
+                <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-5 sm:pt-0">
+                  {[
+                    { to: "/", label: "Netflix", end: true },
+                    { to: "/prime", label: "Prime" },
+                    { to: "/spotify", label: "Spotify" },
+                    // { to: "/crunchyroll", label: "Crunchyroll" },
+                    { to: "/paramount", label: "Paramount+" },
+                    // { to: "/directlogin", label: "Direct Login" },
+                    { to: "/results", label: "Results" },
+                  ].map(({ to, label, end }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      onClick={closeMenu}
+                      end={end}
+                      style={({ isActive }) => ({
+                        fontSize: "0.875rem",
+                        fontWeight: 500,
+                        color: isActive ? "var(--text)" : "var(--text-muted)",
+                        borderBottom: isActive ? "2px solid #ef4444" : "2px solid transparent",
+                        paddingBottom: "2px",
+                        textDecoration: "none",
+                        whiteSpace: "nowrap",
+                      })}
+                    >
+                      {label}
+                    </NavLink>
+                  ))}
                 </div>
               </div>
 
