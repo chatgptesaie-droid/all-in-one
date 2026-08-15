@@ -1,10 +1,7 @@
 import type { CookieBatch, ValidationResult } from "~/lib/netflix.server";
 import { formatBatchNetscape } from "~/lib/netflix.server";
-import { execFile } from "node:child_process";
-import * as path from "node:path";
 
-const HTML_DUMP_DIR = path.join(process.cwd(), "paramount_html_dumps");
-const SCRIPT_PATH = path.join(process.cwd(), "paramount_cookie_checker.py");
+const RENDER_API_URL = process.env.PARAMOUNT_API_URL || "https://netcookies-paramount-checker.onrender.com/validate";
 
 interface PythonResult {
   is_valid: boolean;
@@ -22,28 +19,21 @@ interface PythonResult {
   error?: boolean;
 }
 
-function runPythonChecker(cookies: object[]): Promise<PythonResult> {
-  return new Promise((resolve, reject) => {
-    const payload = JSON.stringify({ cookies, dump_dir: HTML_DUMP_DIR });
-
-    const child = execFile(
-      "python",
-      [SCRIPT_PATH],
-      { timeout: 120_000, maxBuffer: 10 * 1024 * 1024 },
-      (err, stdout, stderr) => {
-        if (stderr) console.error("[Paramount Python stderr]", stderr.slice(0, 500));
-        if (err && !stdout) return reject(err);
-        try {
-          resolve(JSON.parse(stdout));
-        } catch {
-          reject(new Error(`JSON parse error: ${stdout.slice(0, 200)}`));
-        }
-      }
-    );
-
-    child.stdin?.write(payload);
-    child.stdin?.end();
+async function runPythonChecker(cookies: object[]): Promise<PythonResult> {
+  const payload = { cookies };
+  
+  const response = await fetch(RENDER_API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(120_000),
   });
+
+  if (!response.ok) {
+    throw new Error(`Paramount API error: ${response.status} ${response.statusText}`);
+  }
+
+  return await response.json();
 }
 
 export async function validateParamountBatch(batch: CookieBatch): Promise<ValidationResult> {
