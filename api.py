@@ -5,7 +5,15 @@ Endpoint : POST /validate
 """
 from flask import Flask, request, jsonify
 import json
+import os
 from paramount_cookie_checker import check_paramount_cookies, parse_netscape_cookie_file
+
+DEFAULT_PROXY = os.environ.get(
+    'PARAMOUNT_PROXY_URL',
+    'http://xuan123_Nkus-country-US-ssid-oCVWv1K7aM:huy1234@niceproxy.io:17521'
+)
+
+os.environ.setdefault('PARAMOUNT_PROXY_URL', DEFAULT_PROXY)
 
 app = Flask(__name__)
 
