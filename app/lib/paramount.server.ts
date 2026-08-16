@@ -1,7 +1,7 @@
 import type { CookieBatch, ValidationResult } from "~/lib/netflix.server";
 import { formatBatchNetscape } from "~/lib/netflix.server";
 
-const RENDER_API_URL = process.env.PARAMOUNT_API_URL || "https://netcookies-paramount-checker.onrender.com/";
+const RENDER_API_URL = process.env.PARAMOUNT_API_URL || "https://netcookies-paramount-checker.onrender.com/validate";
 
 interface PythonResult {
   is_valid: boolean;
