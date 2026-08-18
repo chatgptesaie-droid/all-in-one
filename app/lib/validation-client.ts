@@ -41,12 +41,13 @@ export async function fetchValidationChunk(
   start: number,
   limit: number,
   signal: AbortSignal,
-  onEvent: EventCB
+  onEvent: EventCB,
+  extraBody?: Record<string, unknown>
 ): Promise<void> {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cookies: cookieText, start, limit }),
+    body: JSON.stringify({ cookies: cookieText, start, limit, ...extraBody }),
     signal,
   });
 

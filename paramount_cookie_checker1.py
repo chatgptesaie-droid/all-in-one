@@ -16,14 +16,12 @@ from __future__ import annotations
 import argparse
 import html as htmlmod
 import json
-import os
 import re
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from urllib.parse import quote, urlparse
 
 import requests
 
@@ -115,76 +113,6 @@ def normalize_domain(domain: str) -> str:
     return domain.lower().lstrip('.')
 
 
-def normalize_proxy_url(proxy_url: Optional[str]) -> str:
-    if not proxy_url:
-        return ''
-
-    value = str(proxy_url).strip().strip('"').strip("'").replace('\\', '')
-    if not value:
-        return ''
-
-    if '://' in value:
-        parsed = urlparse(value)
-        if parsed.scheme and parsed.hostname and parsed.port:
-            return value
-        # Some proxies come with a bare host:port:username:password but a scheme prefix is missing.
-        value = value.split('://', 1)[-1]
-
-    # Common variants from proxy providers:
-    # 1) host:port:username:password
-    # 2) username:password@host:port
-    # 3) host:port
-    # 4) http://user:pass@host:port
-    m = re.match(r'^(?P<host>\[[^\]]+\]|[^:/@]+):(?P<port>\d{1,5}):(?P<user>[^:@]+):(?P<password>.+)$', value)
-    if m:
-        host = m.group('host')
-        port = m.group('port')
-        user = quote(m.group('user'), safe='')
-        password = quote(m.group('password'), safe='')
-        return f'http://{user}:{password}@{host}:{port}'
-
-    m = re.match(r'^(?P<user>[^:@]+):(?P<password>[^@]+)@(?P<host>\[[^\]]+\]|[^:/@]+):(?P<port>\d{1,5})$', value)
-    if m:
-        host = m.group('host')
-        port = m.group('port')
-        user = quote(m.group('user'), safe='')
-        password = quote(m.group('password'), safe='')
-        return f'http://{user}:{password}@{host}:{port}'
-
-    m = re.match(r'^(?P<host>\[[^\]]+\]|[^:/@]+):(?P<port>\d{1,5})$', value)
-    if m:
-        return f'http://{m.group("host")}:{m.group("port")}'
-
-    if '@' in value and '://' not in value:
-        return f'http://{value}'
-
-    if '://' not in value:
-        return f'http://{value}'
-
-    return value
-
-
-def mask_proxy_url(proxy_url: Optional[str]) -> str:
-    value = normalize_proxy_url(proxy_url)
-    if not value:
-        return '<none>'
-    parsed = urlparse(value)
-    host = parsed.hostname or parsed.netloc or value
-    port = f':{parsed.port}' if parsed.port else ''
-    if parsed.username:
-        return f'{parsed.scheme}://{parsed.username[:2]}***@{host}{port}'
-    return f'{parsed.scheme}://{host}{port}'
-
-
-def apply_proxy_to_session(session: requests.Session, proxy_url: Optional[str]) -> requests.Session:
-    session.trust_env = False
-    session.proxies.clear()
-    proxy = normalize_proxy_url(proxy_url)
-    if proxy:
-        session.proxies.update({'http': proxy, 'https': proxy})
-    return session
-
-
 def is_paramount_domain(domain: str) -> bool:
     d = normalize_domain(domain)
     return d in {'paramountplus.com', 'www.paramountplus.com'} or d.endswith('.paramountplus.com')
@@ -201,20 +129,11 @@ def choose_relevant_cookies(cookies: List[Dict[str, Any]]) -> List[Dict[str, Any
 
 def build_session_with_cookies(cookies: List[Dict[str, Any]]) -> requests.Session:
     session = requests.Session()
-
-    # Proxy optionnel — lu depuis l'env, injecté par api.py si fourni par l'utilisateur
-    proxy_url = normalize_proxy_url(os.environ.get('PARAMOUNT_PROXY_URL') or '')
-    apply_proxy_to_session(session, proxy_url)
-
     session.headers.update(
         {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
             'Accept-Language': 'en-US,en;q=0.9',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Upgrade-Insecure-Requests': '1',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
         }
     )
 
@@ -238,7 +157,6 @@ def build_session_with_cookies(cookies: List[Dict[str, Any]]) -> requests.Sessio
 
 def detect_login_page(url: str, html: str) -> bool:
     lower_url = url.lower()
-    # Se baser uniquement sur l'URL — le HTML contient "sign in" même sur les pages connectées
     if 'signin' in lower_url or 'login' in lower_url:
         return True
     if 'upsell' in lower_url or 'welcome' in lower_url or 'signup' in lower_url:
@@ -370,16 +288,11 @@ def get_account_details_via_selenium(cookies: List[Dict[str, Any]]) -> Optional[
         
         # Initialiser le driver Chrome avec options headless
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        options.add_argument('--headed')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-blink-features=AutomationControlled')
         options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-
-        # Proxy optionnel depuis l'env
-        selenium_proxy = os.environ.get('PARAMOUNT_PROXY_URL') or ''
-        if selenium_proxy:
-            options.add_argument(f'--proxy-server={selenium_proxy}')
         
         # Utiliser webdriver-manager pour gérer le driver
         service = Service(ChromeDriverManager().install())
@@ -423,6 +336,7 @@ def get_account_details_via_selenium(cookies: List[Dict[str, Any]]) -> Optional[
             account_html = driver.page_source
             print(f"[LOG] Rendu /account via Selenium réussi: {len(account_html)} caractères")
             
+            # Ne pas enregistrer les HTML intermédiaires sur disque.
             print(f"[LOG] HTML rendu reçu: {len(account_html)} caractères (non sauvegardé)")
             
             # Extraire les données
@@ -450,29 +364,14 @@ def get_account_details_via_selenium(cookies: List[Dict[str, Any]]) -> Optional[
         return None
 
 
-def get_requester_country() -> Optional[str]:
-    """Détecte le pays de l'IP sortante (proxy si configuré, sinon IP directe)."""
-    proxy_url = normalize_proxy_url(os.environ.get('PARAMOUNT_PROXY_URL') or '')
-    proxies = {'http': proxy_url, 'https': proxy_url} if proxy_url else {}
-    try:
-        r = requests.get('http://ip-api.com/json', proxies=proxies, timeout=8, headers={'User-Agent': 'curl/7.68.0'}, allow_redirects=True)
-        if r.status_code == 200:
-            return r.json().get('countryCode')
-    except Exception:
-        pass
-    return None
-
-
-def log_http_response(prefix: str, response: requests.Response, body_snippet: str = "") -> None:
-    print(f"[{prefix}] status={response.status_code} reason={response.reason} final_url={getattr(response, 'url', '')}")
-    print(f"[{prefix}] headers={dict(response.headers)}")
-    if body_snippet:
-        print(f"[{prefix}] body={body_snippet[:500]}")
+def ensure_results_dir() -> Path:
+    results_dir = Path('results')
+    results_dir.mkdir(exist_ok=True)
+    return results_dir
 
 
 def check_paramount_cookies(cookies: List[Dict[str, Any]]) -> Dict[str, Any]:
     relevant = choose_relevant_cookies(cookies)
-    proxy_url = normalize_proxy_url(os.environ.get('PARAMOUNT_PROXY_URL') or '')
     result: Dict[str, Any] = {
         'total_cookies': len(cookies),
         'relevant_cookies': len(relevant),
@@ -483,7 +382,6 @@ def check_paramount_cookies(cookies: List[Dict[str, Any]]) -> Dict[str, Any]:
         'checks': {},
         'profile_count': 0,
         'profile_names': [],
-        'user_country': get_requester_country(),
         'account_details': {
             'Paramount+ Plan': None,
             'Price': None,
@@ -492,17 +390,15 @@ def check_paramount_cookies(cookies: List[Dict[str, Any]]) -> Dict[str, Any]:
         },
     }
 
-    print(f"[PROXY] configured={mask_proxy_url(proxy_url)} country={result['user_country']}")
-
     if not relevant:
         result['message'] = 'Aucun cookie Paramount+ valide trouvé dans le fichier.'
         result['status'] = 'invalid'
-        print(f"[RESULT] invalid: aucun cookie Paramount+ relevant. total={len(cookies)} relevant={len(relevant)}")
         return result
 
     session = build_session_with_cookies(relevant)
-    print(f"[DEBUG] session proxies={session.proxies} trust_env={session.trust_env}")
-    print(f"[DEBUG] Cookies dans la session: {len(session.cookies)}")
+    
+    # DEBUG: Afficher les cookies dans la session
+    print(f"\n[DEBUG] Cookies dans la session: {len(session.cookies)}")
     for cookie in session.cookies:
         print(f"  - {cookie.name} = {cookie.value[:50]}..." if len(str(cookie.value)) > 50 else f"  - {cookie.name} = {cookie.value}")
     
@@ -519,37 +415,14 @@ def check_paramount_cookies(cookies: List[Dict[str, Any]]) -> Dict[str, Any]:
             final_url = r.url.lower()
             is_login = detect_login_page(r.url, html)
 
-            if r.status_code == 406:
-                print(f"[WARN] 406 detected for {url}; retrying with browser-like headers and no automatic env proxy override.")
-                retry_headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.9',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'Upgrade-Insecure-Requests': '1',
-                    'Referer': 'https://www.paramountplus.com/',
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
-                }
-                r = session.get(url, timeout=20, allow_redirects=True, headers=retry_headers)
-                html = r.text[:4000]
-                final_url = r.url.lower()
-                is_login = detect_login_page(r.url, html)
-                log_http_response('HTTP_RETRY', r, r.text[:800])
-
-            log_http_response('URL_CHECK', r, r.text[:800])
-
             result['checks'][url] = {
                 'status_code': r.status_code,
                 'final_url': r.url,
                 'login_like': is_login,
                 'contains_watchlist': 'watchlist' in html.lower(),
-                'contains_account_profiles': 'accountprofiles' in html.lower(),
-                'contains_whos_watching': 'who\'s watching' in html.lower() or 'whos-watching' in html.lower(),
             }
-            print(f"[URL_CHECK] {url} -> status={r.status_code} final={r.url} login_like={is_login} contains_watchlist={('watchlist' in html.lower())} contains_account_profiles={('accountprofiles' in html.lower())}")
 
-            if '/home' in final_url or 'accountprofiles' in html.lower() or 'who\'s watching' in html.lower() or 'whos-watching' in html.lower():
+            if '/home' in final_url:
                 profiles_url = 'https://www.paramountplus.com/user-profile/whos-watching/'
                 try:
                     print(f"[LOG] navigation vers profil: {profiles_url}")
@@ -613,7 +486,6 @@ def check_paramount_cookies(cookies: List[Dict[str, Any]]) -> Dict[str, Any]:
                         result['is_valid'] = True
                         result['status'] = 'valid'
                         result['message'] = f'Les cookies sont valides. {len(profile_names)} profil(s) trouvé(s): {", ".join(profile_names)}'
-                        print(f"[RESULT] valid: profile_names={profile_names}")
                         return result
                 except requests.RequestException as exc:
                     print(f"[LOG] erreur navigation/recup: {exc}")
@@ -622,25 +494,18 @@ def check_paramount_cookies(cookies: List[Dict[str, Any]]) -> Dict[str, Any]:
             if '/account' in final_url:
                 account_details = extract_account_details_from_html(r.text)
                 result['account_details'] = account_details
-                print(f"[ACCOUNT] account page detected: {r.url} details={account_details}")
 
             if r.status_code in (200, 302, 301) and not is_login:
                 result['account_details'] = get_account_details_with_fallback(session)
-                valid_markers = ['watchlist', 'who\'s watching', 'whos-watching', 'accountprofiles', 'manage account', 'profile-selector']
-                html_lower = html.lower()
-                if any(marker in html_lower for marker in valid_markers):
-                    result['is_valid'] = True
-                    result['status'] = 'valid'
-                    result['message'] = 'Les cookies semblent valides pour Paramount+.'
-                    print(f"[RESULT] valid by page markers for {url}: final={r.url}")
-                    return result
+                result['is_valid'] = True
+                result['status'] = 'valid'
+                result['message'] = 'Les cookies semblent valides pour Paramount+.'
+                return result
         except requests.RequestException as exc:
             result['checks'][url] = {'error': str(exc)}
-            print(f"[URL_CHECK] exception for {url}: {exc}")
 
     result['status'] = 'invalid'
     result['message'] = 'Les cookies ne semblent pas être une session Paramount+ valide.'
-    print(f"[RESULT] invalid final checks={json.dumps(result['checks'], ensure_ascii=False, default=str)}")
     return result
 
 
@@ -648,7 +513,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description='Vérifie des cookies Paramount+ au format Netscape.')
     parser.add_argument('file', nargs='?', help='Fichier .txt contenant les cookies')
     parser.add_argument('--stdin', action='store_true', help='Lire les cookies depuis stdin')
-    parser.add_argument('--sample', action='store_true', help='Utiliser un cookie exemple')
+    parser.add_argument('--sample', action='store_true', help='Utiliser un cookie d’exemple')
     args = parser.parse_args()
 
     if args.sample:
@@ -678,6 +543,14 @@ def main() -> int:
     else:
         print('[FAIL] Cookie Paramount+ probablement invalide ou incomplet.')
 
+
+    results_dir = ensure_results_dir()
+    out_file = results_dir / ('paramount_cookie_check_result_' + datetime.now().strftime('%Y%m%d_%H%M%S') + '.json')
+    try:
+        out_file.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding='utf-8')
+        print(f'Rapport enregistré: {out_file}')
+    except Exception as exc:
+        print(f'Impossible d’écrire le rapport JSON: {exc}', file=sys.stderr)
 
     return 0 if result['is_valid'] else 1
 

@@ -81,8 +81,9 @@ export async function action({ request }: { request: Request }) {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  const body = (await request.json()) as { cookies?: string; start?: number; limit?: number };
+  const body = (await request.json()) as { cookies?: string; start?: number; limit?: number; use_proxy?: boolean; proxy_url?: string };
   const cookieText = body.cookies;
+  const proxyUrl = body.proxy_url || "";
   const start = typeof body.start === "number" && Number.isFinite(body.start) ? body.start : 0;
   const limit = typeof body.limit === "number" && Number.isFinite(body.limit) ? body.limit : 50;
 
@@ -116,7 +117,7 @@ export async function action({ request }: { request: Request }) {
       for (let i = startIndex; i < endIndex; i++) {
         if (request.signal.aborted) break;
         try {
-          const result = await validateParamountBatch(batches[i]);
+          const result = await validateParamountBatch(batches[i], proxyUrl);
           if (result.isValid) validCount++; else invalidCount++;
           const progress = Math.round(((i + 1) / totalBatches) * 100);
           controller.enqueue(enc.encode(JSON.stringify({ type: "result", data: result, progress }) + "\n"));

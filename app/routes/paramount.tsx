@@ -16,6 +16,8 @@ export default function ParamountPage() {
   const [selectedResult, setSelectedResult] = useState<ValidationResult | null>(null);
   const [fileLoaded, setFileLoaded] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("Pret");
+  const [useProxy, setUseProxy] = useState(true);
+  const [proxyUrl, setProxyUrl] = useState("http://xuan123_Nkus-country-US-ssid-oCVWv1K7aM:huy1234@niceproxy.io:17521");
   const [useOnlineFiles, setUseOnlineFiles] = useState(false);
   const [storageFiles, setStorageFiles] = useState<Array<{
     id: string | null;
@@ -39,8 +41,8 @@ export default function ParamountPage() {
   const start = useCallback(() => {
     if (!cookieText.trim()) return;
     setResults([]); setSelectedResult(null); setProgress(0);
-    validator.startValidation(cookieText);
-  }, [cookieText]);
+    validator.startValidation(cookieText, useProxy ? proxyUrl : "");
+  }, [cookieText, useProxy, proxyUrl]);
 
   const stop = useCallback(() => { validator.stopValidation(); setIsValidating(false); }, []);
 
@@ -375,6 +377,31 @@ export default function ParamountPage() {
                 />
                 <span className="font-medium">Utiliser fichiers en ligne</span>
               </label>
+
+              <label htmlFor="use-proxy" className="switch-control w-full sm:w-auto text-sm" style={{ color: "var(--text)" }}>
+                <span className={`toggle-switch ${useProxy ? "toggle-switch--active" : ""}`} aria-hidden="true">
+                  <span className={`toggle-switch__thumb ${useProxy ? "toggle-switch__thumb--active" : ""}`} />
+                </span>
+                <input
+                  id="use-proxy"
+                  type="checkbox"
+                  checked={useProxy}
+                  onChange={(e) => setUseProxy(e.target.checked)}
+                  className="sr-only"
+                />
+                <span className="font-medium">Proxy</span>
+              </label>
+
+              {useProxy && (
+                <input
+                  type="text"
+                  value={proxyUrl}
+                  onChange={(e) => setProxyUrl(e.target.value)}
+                  placeholder="http://user:pass@host:port"
+                  className="input-surface text-xs w-full sm:w-72"
+                  style={{ minWidth: 0 }}
+                />
+              )}
 
               <div className="hidden h-6 w-px sm:mx-1 sm:block" style={{ background: "var(--border)" }} />
               <button onClick={start} disabled={isValidating || !cookieText.trim()} className="btn-primary w-full sm:w-auto">{isValidating ? "Validation..." : "Lancer la validation"}</button>
