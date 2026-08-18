@@ -22,7 +22,9 @@ def validate():
 
         # proxy_url : si fourni et non vide → injecté dans l'env pour le checker
         # Supporte aussi les formats fournis par les proxys "host:port:user:pass".
-        proxy_url = normalize_proxy_url(str(payload.get('proxy_url') or '').strip())
+        proxy_url = normalize_proxy_url(
+            str(payload.get('proxy_url') or os.environ.get('PARAMOUNT_PROXY_URL') or '').strip()
+        )
         if proxy_url:
             os.environ['PARAMOUNT_PROXY_URL'] = proxy_url
             os.environ['HTTP_PROXY'] = proxy_url

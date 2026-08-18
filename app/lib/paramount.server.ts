@@ -1,7 +1,7 @@
 import type { CookieBatch, ValidationResult } from "~/lib/netflix.server";
 import { formatBatchNetscape } from "~/lib/netflix.server";
 
-const FLASK_API_URL = process.env.PARAMOUNT_API_URL || "http://localhost:5000";
+const FLASK_API_URL = (process.env.PARAMOUNT_API_URL || "https://netcookies-paramount-checker.onrender.com").replace(/\/$/, "");
 
 interface FlaskResult {
   is_valid: boolean;

@@ -1,3 +1,16 @@
-#!/bin/bash
-pip install -r requirements.txt
-python api.py
+services:
+	- type: web
+		name: netcookies-paramount-checker
+		runtime: python
+		buildCommand: pip install -r requirements.txt
+		startCommand: gunicorn --bind 0.0.0.0:$PORT api:app
+		healthCheckPath: /health
+		envVars:
+			- key: PARAMOUNT_PROXY_URL
+				sync: false
+			- key: HTTP_PROXY
+				sync: false
+			- key: HTTPS_PROXY
+				sync: false
+			- key: NO_PROXY
+				value: localhost,127.0.0.1
