@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements-scribd.txt
 
 COPY scribd_api.py scribd_selenium_checker.py ./
 
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5001} scribd_api:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5001} --workers 1 --timeout 300 --graceful-timeout 30 scribd_api:app"]

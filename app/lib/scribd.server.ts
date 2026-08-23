@@ -31,7 +31,7 @@ export function parseScribdCookiesFromText(content: string): CookieBatch[] {
 }
 
 async function runScribdChecker(cookies: ScribdCookie[]): Promise<ScribdPayload> {
-  const response = await fetch(`${SCRIBD_API_URL}/validate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cookies }), signal: AbortSignal.timeout(180_000) });
+  const response = await fetch(`${SCRIBD_API_URL}/validate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cookies }), signal: AbortSignal.timeout(300_000) });
   const data = await response.json().catch(() => ({})) as ScribdPayload & { error?: string };
   if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
   return data;
