@@ -26,6 +26,7 @@ from typing import Any
 
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 
 DEFAULT_URL       = "https://www.scribd.com/"
@@ -194,6 +195,14 @@ def wait_for_render(driver: uc.Chrome, timeout: int = 20) -> None:
         time.sleep(2)
 
 
+def navigate(driver: uc.Chrome, url: str, timeout: int = 45) -> None:
+    driver.set_page_load_timeout(timeout)
+    try:
+        driver.get(url)
+    except TimeoutException:
+        logging.warning("Navigation timeout for %s; continuing with current page", url)
+
+
 # ---------------------------------------------------------------------------
 # Core checker
 # ---------------------------------------------------------------------------
@@ -261,7 +270,7 @@ def check_cookie_file(
     try:
         # 1. Open domain
         logging.info("Loading initial page: %s", url)
-        driver.get(url)
+        navigate(driver, url)
         time.sleep(3)
 
         # 2. Inject cookies
@@ -277,7 +286,7 @@ def check_cookie_file(
 
         # 3. Reload → should redirect to /home
         logging.info("Reloading after injection ...")
-        driver.get(url)
+        navigate(driver, url)
         wait_for_render(driver, timeout=timeout)
 
         final_url = driver.current_url
@@ -295,7 +304,7 @@ def check_cookie_file(
             base = final_url.split("/home")[0]
             acc_url = base + ACCOUNT_PATH
             logging.info("Navigating to %s", acc_url)
-            driver.get(acc_url)
+            navigate(driver, acc_url)
             wait_for_render(driver, timeout=timeout)
 
             acc_html = driver.page_source or ""
