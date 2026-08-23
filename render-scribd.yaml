@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: netcookies-scribd-checker
+    runtime: python
+    buildCommand: pip install -r requirements-scribd.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT scribd_api:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
