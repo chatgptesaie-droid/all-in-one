@@ -17,6 +17,7 @@ import argparse
 import json
 import logging
 import re
+import shutil
 import sys
 import time
 from datetime import datetime, timezone
@@ -234,6 +235,19 @@ def check_cookie_file(
     opts.add_argument("--window-size=1920,1080")
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-dev-shm-usage")
+
+    chrome_binary = next(
+        (
+            shutil.which(name)
+            for name in ("chromium", "chromium-browser", "google-chrome")
+            if shutil.which(name)
+        ),
+        None,
+    )
+    if chrome_binary:
+        opts.binary_location = chrome_binary
+    else:
+        raise RuntimeError("Chrome/Chromium introuvable dans l'environnement du serveur")
 
     uc_kwargs: dict[str, Any] = {
         "options":      opts,

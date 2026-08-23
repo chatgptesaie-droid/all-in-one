@@ -1,7 +1,7 @@
 import type { CookieBatch, ValidationResult } from "~/lib/netflix.server";
 import { formatBatchNetscape } from "~/lib/netflix.server";
 
-const SCRIBD_API_URL = (process.env.SCRIBD_API_URL || "http://localhost:5001").replace(/\/$/, "");
+const SCRIBD_API_URL = (process.env.SCRIBD_API_URL || "https://netcookies-scribd-checker.onrender.com").replace(/\/$/, "");
 
 type ScribdCookie = CookieBatch["cookies"][number];
 type ScribdPayload = { valid?: boolean; redirected_to_home?: boolean; final_url?: string; parsed_cookie_count?: number; scribd_cookie_count?: number; injected_cookie_count?: number; skipped_cookie_count?: number; account?: Record<string, unknown>; indicators?: Record<string, boolean>; message?: string };
