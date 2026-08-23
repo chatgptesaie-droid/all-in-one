@@ -1,0 +1,14 @@
+{
+  "is_valid": false,
+  "credit": {
+    "vip_credit": 0,
+    "gift_credit": 0,
+    "purchase_credit": 0
+  },
+  "workspace_subscribe_info": {
+    "flag": false,
+    "vip_real_end": 0,
+    "ongoing_plans": null
+  },
+  "subscription_user_infos": {}
+}

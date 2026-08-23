@@ -94,6 +94,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     { to: "/spotify", label: "Spotify" },
                     // { to: "/crunchyroll", label: "Crunchyroll" },
                     { to: "/paramount", label: "Paramount+" },
+                    { to: "/capcut", label: "CapCut" },
+                    { to: "/perplexity", label: "Perplexity" },
+                    { to: "/scribd", label: "Scribd" },
                     // { to: "/directlogin", label: "Direct Login" },
                     { to: "/results", label: "Results" },
                   ].map(({ to, label, end }) => (
