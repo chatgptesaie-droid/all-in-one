@@ -8,6 +8,15 @@ function copyText(text: string) {
   }
 }
 
+function download(content: string, type: string, name: string) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function PrimePage() {
   const [cookieText, setCookieText] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -34,6 +43,18 @@ export default function PrimePage() {
 
   const validCount = results.filter((r) => r.isValid).length;
   const invalidCount = results.filter((r) => !r.isValid).length;
+  const exportResults = useCallback((json: boolean) => {
+    const validResults = results.filter((result) => result.isValid);
+    if (!validResults.length) return;
+
+    download(
+      json
+        ? JSON.stringify({ exportTime: new Date().toISOString(), results: validResults }, null, 2)
+        : `# Netscape HTTP Cookie File\n\n${validResults.map((result) => result.netscapeFormat || "").join("\n\n")}`,
+      json ? "application/json" : "text/plain",
+      `prime_valid_cookies.${json ? "json" : "txt"}`,
+    );
+  }, [results]);
   const STORAGE_BUCKET = import.meta.env.VITE_SUPABASE_STORAGE_BUCKET || "NETCOOKIES";
 
   const fetchStorageFiles = useCallback(async (folderPath?: string) => {
@@ -431,6 +452,16 @@ export default function PrimePage() {
               <button onClick={reset} disabled={isValidating} className="btn-secondary w-full sm:w-auto">
                 Reset
               </button>
+              {validCount > 0 && !isValidating && (
+                <>
+                  <button onClick={() => exportResults(false)} className="btn-secondary w-full sm:w-auto">
+                    Export TXT
+                  </button>
+                  <button onClick={() => exportResults(true)} className="btn-secondary w-full sm:w-auto">
+                    Export JSON
+                  </button>
+                </>
+              )}
               {isValidating && (
                 <button onClick={stop} className="btn-danger w-full sm:w-auto">Arrêter</button>
               )}

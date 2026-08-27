@@ -282,6 +282,19 @@ select {
     border: 1px solid #fca5a5;
   }
 
+  .badge-expired {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium;
+    background: rgba(154, 52, 18, 0.15);
+    color: #fb923c;
+    border: 1px solid rgba(251, 146, 60, 0.4);
+  }
+
+  html.light .badge-expired {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fdba74;
+  }
+
   /* Panneau de détail status header */
   .detail-valid {
     @apply p-3 rounded-lg border;
@@ -303,6 +316,17 @@ select {
   html.light .detail-invalid {
     background: #fff1f2;
     border-color: #fca5a5;
+  }
+
+  .detail-expired {
+    @apply p-3 rounded-lg border;
+    background: rgba(154, 52, 18, 0.1);
+    border-color: rgba(251, 146, 60, 0.4);
+  }
+
+  html.light .detail-expired {
+    background: #fff7ed;
+    border-color: #fdba74;
   }
 
   .detail-valid-text {

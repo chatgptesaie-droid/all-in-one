@@ -59,7 +59,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -91,12 +91,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   {[
                     { to: "/", label: "Netflix", end: true },
                     { to: "/prime", label: "Prime" },
-                    { to: "/spotify", label: "Spotify" },
+                    // { to: "/spotify", label: "Spotify" },
                     // { to: "/crunchyroll", label: "Crunchyroll" },
-                    { to: "/paramount", label: "Paramount+" },
-                    { to: "/capcut", label: "CapCut" },
-                    { to: "/perplexity", label: "Perplexity" },
-                    { to: "/scribd", label: "Scribd" },
+                    // { to: "/paramount", label: "Paramount+" },
+                    // { to: "/capcut", label: "CapCut" },
+                    // { to: "/perplexity", label: "Perplexity" },
+                    // { to: "/scribd", label: "Scribd" },
+                    { to: "/canal+", label: "Canal+" },
+                    // { to: "/claude", label: "Claude" },
                     // { to: "/directlogin", label: "Direct Login" },
                     { to: "/results", label: "Results" },
                   ].map(({ to, label, end }) => (
