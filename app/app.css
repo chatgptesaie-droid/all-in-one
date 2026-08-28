@@ -140,9 +140,17 @@ select {
 
   .btn-danger {
     @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-2xl transition-all duration-200 ease-out;
-    @apply bg-[#3f1724] text-red-300 border border-red-700/70 hover:bg-red-950 hover:text-red-100 hover:-translate-y-0.5;
+    @apply bg-[#7f1d1d] text-red-100 border border-red-500/80 hover:bg-[#991b1b] hover:text-white hover:-translate-y-0.5;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2;
     ring-offset-color: var(--bg);
+  }
+
+  .divide-y > :not(:first-child) {
+    border-color: #f43f5e;
+  }
+
+  input[type="checkbox"] {
+    accent-color: #f43f5e;
   }
 
   .input-surface {

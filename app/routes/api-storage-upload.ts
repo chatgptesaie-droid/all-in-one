@@ -1,8 +1,16 @@
 import { storageBucket, supabase, supabaseAdmin } from "~/lib/supabase";
+import { isAdminRequest } from "~/lib/admin.server";
 
 export async function action({ request }: { request: Request }) {
   if (request.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
+  }
+
+  if (!isAdminRequest(request)) {
+    return new Response(JSON.stringify({ error: "Authentification admin requise" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const body = (await request.json()) as {
@@ -30,9 +38,23 @@ export async function action({ request }: { request: Request }) {
     });
   }
 
+  if (path.startsWith("/") || path.split("/").some((segment) => segment === ".." || segment === ".")) {
+    return new Response(JSON.stringify({ error: "Chemin de fichier invalide" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   if (!fileBase64 || typeof fileBase64 !== "string") {
     return new Response(JSON.stringify({ error: "fileBase64 is required" }), {
       status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (fileBase64.length > 15 * 1024 * 1024) {
+    return new Response(JSON.stringify({ error: "Fichier trop volumineux (15 Mo maximum)" }), {
+      status: 413,
       headers: { "Content-Type": "application/json" },
     });
   }
