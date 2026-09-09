@@ -27,6 +27,16 @@ function copyText(text: string) {
   }
 }
 
+function downloadFile(content: string, filename: string, type: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function CrunchyrollPage() {
   const [cookieText, setCookieText] = useState("");
   const [results, setResults] = useState<ValidationResult[]>([]);
@@ -37,8 +47,16 @@ export default function CrunchyrollPage() {
   const [fileLoaded, setFileLoaded] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("Pret");
 
-  const validCount = results.filter((r) => r.isValid).length;
+  const premiumCount = results.filter((r) => r.isValid && String(r.accountInfo?.premium) === "true").length;
+  const freeCount = results.filter((r) => r.isValid && String(r.accountInfo?.premium) !== "true").length;
   const invalidCount = results.filter((r) => !r.isValid).length;
+
+  const exportJson = () => downloadFile(JSON.stringify({ exportedAt: new Date().toISOString(), results }, null, 2), "crunchyroll-results.json", "application/json");
+  const exportPremiumCookies = () => {
+    const premium = results.filter((result) => result.isValid && String(result.accountInfo?.premium) === "true");
+    if (!premium.length) return;
+    downloadFile(`# Netscape HTTP Cookie File\n\n${premium.map((result) => result.netscapeFormat).join("\n\n")}`, "crunchyroll-premium-cookies.txt", "text/plain");
+  };
 
   const start = useCallback(() => {
     if (!cookieText.trim()) return;
@@ -161,6 +179,12 @@ export default function CrunchyrollPage() {
               {isValidating && (
                 <button onClick={stop} className="btn-danger w-full sm:w-auto">Arrêter</button>
               )}
+              {results.length > 0 && (
+                <>
+                  <button type="button" onClick={exportJson} className="btn-secondary w-full sm:w-auto">Exporter JSON</button>
+                  <button type="button" onClick={exportPremiumCookies} disabled={premiumCount === 0} className="btn-secondary w-full sm:w-auto">Exporter Premium</button>
+                </>
+              )}
               {fileLoaded && (
                 <span className="text-xs sm:ml-auto" style={{ color: "var(--text-subtle)" }}>{fileLoaded}</span>
               )}
@@ -207,6 +231,7 @@ export default function CrunchyrollPage() {
                         <th className="px-3 py-2.5 w-20">Statut</th>
                         <th className="px-3 py-2.5">Utilisateur</th>
                         <th className="px-3 py-2.5 hidden sm:table-cell">Plan</th>
+                        <th className="px-3 py-2.5 hidden lg:table-cell">Renewal</th>
                         <th className="px-3 py-2.5 hidden md:table-cell">Pays</th>
                         <th className="px-3 py-2.5 hidden sm:table-cell">Message</th>
                       </tr>
@@ -221,9 +246,9 @@ export default function CrunchyrollPage() {
                         >
                           <td className="px-3 py-2.5 font-mono text-xs" style={{ color: "var(--text-subtle)" }}>{result.batchIndex}</td>
                           <td className="px-3 py-2.5">
-                            <span className={result.isValid ? "badge-valid" : "badge-invalid"}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${result.isValid ? "bg-emerald-400" : "bg-red-400"}`} />
-                              {result.isValid ? "Valide" : "Invalide"}
+                            <span className={!result.isValid ? "badge-invalid" : String(result.accountInfo?.premium) === "true" ? "badge-valid" : "badge-free"}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${!result.isValid ? "bg-red-400" : String(result.accountInfo?.premium) === "true" ? "bg-emerald-400" : "bg-orange-400"}`} />
+                              {!result.isValid ? "Invalide" : String(result.accountInfo?.premium) === "true" ? "Premium" : "Free"}
                             </span>
                           </td>
                           <td className="px-3 py-2.5 text-xs" style={{ color: "var(--text)" }}>
@@ -231,6 +256,9 @@ export default function CrunchyrollPage() {
                           </td>
                           <td className="px-3 py-2.5 text-xs hidden sm:table-cell" style={{ color: "var(--text)" }}>
                             {(result.accountInfo?.plan as string) || "-"}
+                          </td>
+                          <td className="px-3 py-2.5 text-xs hidden lg:table-cell" style={{ color: "var(--text-muted)" }}>
+                            {(result.accountInfo?.next_renewal as string) || "-"}
                           </td>
                           <td className="px-3 py-2.5 text-xs hidden md:table-cell" style={{ color: "var(--text-muted)" }}>
                             {(result.accountInfo?.country as string) || "-"}
@@ -267,7 +295,8 @@ export default function CrunchyrollPage() {
             <div className="shrink-0 z-10 border-t px-4 py-2.5 sm:px-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
               <div className="flex flex-wrap items-center gap-3 text-xs sm:gap-6">
                 <span style={{ color: "var(--text-muted)" }}>Total: <span className="font-medium" style={{ color: "var(--text)" }}>{results.length}</span></span>
-                <span style={{ color: "var(--text-muted)" }}>Valides: <span className="text-emerald-500 font-medium">{validCount}</span></span>
+                <span style={{ color: "var(--text-muted)" }}>Valides: <span className="text-emerald-500 font-medium">{premiumCount}</span></span>
+                <span style={{ color: "var(--text-muted)" }}>Free: <span className="font-medium text-orange-400">{freeCount}</span></span>
                 <span style={{ color: "var(--text-muted)" }}>Invalides: <span className="text-red-400 font-medium">{invalidCount}</span></span>
               </div>
             </div>
@@ -295,9 +324,9 @@ function CrunchyrollDetails({ result }: { result: ValidationResult }) {
   return (
     <div className="p-4 space-y-4 sm:p-5 sm:space-y-5">
       {/* Status */}
-      <div className={result.isValid ? "detail-valid" : "detail-invalid"}>
-        <p className={`text-sm font-medium ${result.isValid ? "detail-valid-text" : "detail-invalid-text"}`}>
-          {result.isValid ? "Cookie Valide" : "Cookie Invalide"}
+      <div className={!result.isValid ? "detail-invalid" : String(info.premium) === "true" ? "detail-valid" : "detail-free"}>
+        <p className={`text-sm font-medium ${!result.isValid ? "detail-invalid-text" : String(info.premium) === "true" ? "detail-valid-text" : "detail-free-text"}`}>
+          {!result.isValid ? "Cookie Invalide" : String(info.premium) === "true" ? "Compte Premium" : "Compte Free"}
         </p>
         <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{result.message}</p>
       </div>
@@ -335,7 +364,49 @@ function CrunchyrollDetails({ result }: { result: ValidationResult }) {
             {info.country && <InfoRow label="Pays" value={info.country as string} />}
             {info.next_billing_date && <InfoRow label="Prochaine facturation" value={info.next_billing_date as string} />}
             {info.member_since && <InfoRow label="Membre depuis" value={info.member_since as string} />}
+            {info.tier && <InfoRow label="Tier" value={String(info.tier)} />}
+            {info.premium && <InfoRow label="Premium" value={String(info.premium)} />}
+            {info.active && <InfoRow label="Actif" value={String(info.active)} />}
           </div>
+        </section>
+      )}
+
+      {result.isValid && (info.payment_method || info.latest_invoice_id) && (
+        <section>
+          <h3 className="text-[11px] uppercase tracking-wider font-medium mb-3" style={{ color: "var(--text-subtle)" }}>Paiement et facture</h3>
+          <div className="space-y-1.5">
+            {info.payment_method && <InfoRow label="Moyen de paiement" value={String(info.payment_method)} />}
+            {info.payment_name && <InfoRow label="Compte paiement" value={String(info.payment_name)} />}
+            {info.payment_status && <InfoRow label="Statut paiement" value={String(info.payment_status)} />}
+            {info.payment_country && <InfoRow label="Pays paiement" value={String(info.payment_country)} />}
+            {info.latest_invoice_id && <InfoRow label="Dernière facture" value={String(info.latest_invoice_id)} />}
+            {info.latest_invoice_status && <InfoRow label="Statut facture" value={String(info.latest_invoice_status)} />}
+            {info.latest_invoice_text && <InfoRow label="Montant facture" value={String(info.latest_invoice_text)} />}
+            {info.latest_invoice_currency && <InfoRow label="Devise" value={String(info.latest_invoice_currency)} />}
+            {info.latest_invoice_created && <InfoRow label="Facture créée" value={String(info.latest_invoice_created)} />}
+            {info.subscription_status && <InfoRow label="Statut abonnement API" value={String(info.subscription_status)} />}
+          </div>
+          {Array.isArray(info.latest_invoice_plans) && info.latest_invoice_plans.length > 0 && (
+            <div className="mt-3 rounded-lg border p-3" style={{ background: "var(--bg)", borderColor: "var(--border)" }}>
+              <p className="mb-2 text-[11px] font-medium" style={{ color: "var(--text-muted)" }}>Plans facturés</p>
+              {info.latest_invoice_plans.map((plan: Record<string, unknown>, index: number) => (
+                <div key={index} className="border-b py-1.5 last:border-b-0" style={{ borderColor: "var(--border-subtle)" }}>
+                  <p className="text-xs" style={{ color: "var(--text)" }}>{String(plan.name || plan.sku || "Plan")}</p>
+                  <p className="text-[11px]" style={{ color: "var(--text-subtle)" }}>{String(plan.price || "")} {String(plan.start_date || "")}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {result.isValid && Array.isArray(info.profile_names) && (
+        <section>
+          <h3 className="text-[11px] uppercase tracking-wider font-medium mb-3" style={{ color: "var(--text-subtle)" }}>Profils ({info.profile_count ?? info.profile_names.length})</h3>
+          <div className="flex flex-wrap gap-2">
+            {info.profile_names.map((name: unknown) => <span key={String(name)} className="rounded-full border px-2.5 py-1 text-xs" style={{ color: "var(--text)", borderColor: "var(--border)" }}>{String(name)}</span>)}
+          </div>
+          {info.max_profiles && <p className="mt-2 text-[11px]" style={{ color: "var(--text-subtle)" }}>Maximum: {String(info.max_profiles)}</p>}
         </section>
       )}
 

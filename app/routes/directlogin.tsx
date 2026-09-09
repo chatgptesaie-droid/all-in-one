@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+﻿import { useState, useCallback } from "react";
 
 interface DirectLoginResult {
   index: number;
@@ -14,7 +14,7 @@ interface DirectLoginResult {
 export function meta() {
   return [
     { title: "Direct Login Netflix" },
-    { name: "description", content: "Tester des liens Netflix et vérifier la redirection vers /account." },
+    { name: "description", content: "Tester des liens Netflix et v├®rifier la redirection vers /account." },
   ];
 }
 
@@ -27,6 +27,7 @@ export default function DirectLoginPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [validCount, setValidCount] = useState(0);
   const [invalidCount, setInvalidCount] = useState(0);
+  const [selectedResult, setSelectedResult] = useState<DirectLoginResult | null>(null);
 
   const handleSubmit = useCallback(async () => {
     if (!urlText.trim()) {
@@ -41,6 +42,7 @@ export default function DirectLoginPage() {
     setTotalCount(0);
     setValidCount(0);
     setInvalidCount(0);
+    setSelectedResult(null);
 
     try {
       const response = await fetch("/api/directlogin", {
@@ -132,7 +134,7 @@ export default function DirectLoginPage() {
             placeholder="https://www.netflix.com/directlogin?....\nhttps://www.netflix.com/..."
             className="textarea-surface"
           />
-          <p className="mt-2 text-xs" style={{ color: "var(--text-subtle)" }}>Un lien par ligne, les lignes vides et les commentaires (#) sont ignorés.</p>
+          <p className="mt-2 text-xs" style={{ color: "var(--text-subtle)" }}>Un lien par ligne, les lignes vides et les commentaires (#) sont ignor├®s.</p>
         </div>
 
         <div className="mt-6 rounded-2xl border p-4" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
@@ -157,7 +159,7 @@ export default function DirectLoginPage() {
           {isLoading && (
             <div className="mt-3">
               <div className="flex justify-between text-[11px] mb-1" style={{ color: "var(--text-subtle)" }}>
-                <span>{results.length} / {totalCount} traités</span>
+                <span>{results.length} / {totalCount} trait├®s</span>
                 <span>{progress}%</span>
               </div>
               <div className="w-full rounded-full h-1.5" style={{ background: "var(--border)" }}>
@@ -170,60 +172,49 @@ export default function DirectLoginPage() {
         <div className="mt-6 overflow-x-auto">
           {results.length === 0 ? (
             <div className="rounded-2xl border p-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
-              Aucun résultat pour le moment.
+              Aucun r├®sultat pour le moment.
             </div>
           ) : (
             <div className="space-y-4">
               {results.map((result) => (
-                <div
+                <button
                   key={result.index}
-                  className="rounded-2xl border p-4"
+                  type="button"
+                  onClick={() => setSelectedResult(result)}
+                  className="w-full rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-red-400/70"
                   style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
                 >
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
                       <div className="text-sm font-medium" style={{ color: "var(--text)" }}>Lien #{result.index}</div>
-                      <div className="text-xs break-all" style={{ color: "var(--text-muted)" }}>{result.url}</div>
+                      <div className="mt-1 truncate text-xs" style={{ color: "var(--text-muted)" }}>{result.url}</div>
                     </div>
                     <div className={result.isValid ? "badge-valid" : "badge-invalid"}>
                       {result.isValid ? "Valide" : "Invalide"}
                     </div>
                   </div>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                    <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                      <span style={{ color: "var(--text)" }}>Status:</span> {result.status ?? "-"}
-                    </div>
-                    <div className="text-xs break-all" style={{ color: "var(--text-muted)" }}>
-                      <span style={{ color: "var(--text)" }}>Final URL:</span> {result.finalUrl || "-"}
-                    </div>
-                    <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                      <span style={{ color: "var(--text)" }}>Message:</span> {result.message}
-                    </div>
-                  </div>
-                  {result.profileNames && result.profileNames.length > 0 && (
-                    <div className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
-                      <span style={{ color: "var(--text)" }}>Profils:</span> {result.profileNames.join(", ")}
-                    </div>
-                  )}
-                  {result.accountInfo && Object.keys(result.accountInfo).length > 0 && (
-                    <div className="mt-3 rounded-2xl border p-3 text-xs" style={{ background: "var(--bg-surface-alt)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
-                      <div className="mb-2 text-sm font-semibold" style={{ color: "var(--text)" }}>Infos compte</div>
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        {Object.entries(result.accountInfo).map(([key, value]) => (
-                          <div key={key} className="flex items-start gap-2">
-                            <span className="font-medium" style={{ color: "var(--text)" }}>{key}:</span>
-                            <span className="break-all">{Array.isArray(value) ? value.join(", ") : String(value)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  <div className="mt-2 text-xs" style={{ color: "var(--text-subtle)" }}>Cliquer pour afficher les détails</div>
+                </button>
               ))}
             </div>
           )}
         </div>
       </section>
+      {selectedResult && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-6" onClick={() => setSelectedResult(null)}>
+          <section className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border p-5 sm:max-w-2xl sm:rounded-2xl" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }} onClick={(event) => event.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4">
+              <div><p className="text-xs font-semibold uppercase tracking-widest text-red-400">Résultat #{selectedResult.index}</p><h2 className="mt-1 text-xl font-semibold">{selectedResult.isValid ? "Compte valide" : "Lien invalide"}</h2></div>
+              <button type="button" className="btn-secondary px-3 py-1.5" onClick={() => setSelectedResult(null)}>Fermer</button>
+            </div>
+            <div className="mt-4 break-all rounded-xl border p-3 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}>{selectedResult.url}</div>
+            <div className={`mt-4 ${selectedResult.isValid ? "badge-valid" : "badge-invalid"}`}>{selectedResult.isValid ? "Valide" : "Invalide"}</div>
+            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2" style={{ color: "var(--text-muted)" }}><div><span style={{ color: "var(--text)" }}>Status:</span> {selectedResult.status ?? "-"}</div><div className="break-all"><span style={{ color: "var(--text)" }}>Final URL:</span> {selectedResult.finalUrl || "-"}</div><div className="sm:col-span-2"><span style={{ color: "var(--text)" }}>Message:</span> {selectedResult.message}</div></div>
+            {selectedResult.isValid && selectedResult.profileNames && <div className="mt-4 text-sm" style={{ color: "var(--text-muted)" }}><span style={{ color: "var(--text)" }}>Profils:</span> {selectedResult.profileNames.join(", ")}</div>}
+            {selectedResult.isValid && selectedResult.accountInfo && <div className="mt-4 rounded-xl border p-4" style={{ background: "var(--bg-surface-alt)", borderColor: "var(--border)" }}><h3 className="mb-3 text-sm font-semibold">Infos compte</h3><div className="grid gap-2 text-xs sm:grid-cols-2">{Object.entries(selectedResult.accountInfo).map(([key, value]) => <div key={key} className="flex items-start gap-2" style={{ color: "var(--text-muted)" }}><span className="font-medium" style={{ color: "var(--text)" }}>{key}:</span><span className="break-all">{Array.isArray(value) ? value.join(", ") : String(value)}</span></div>)}</div></div>}
+          </section>
+        </div>
+      )}
     </main>
   );
 }

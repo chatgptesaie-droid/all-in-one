@@ -491,7 +491,7 @@ export default function Home() {
       content += result.netscapeFormat + "\n\n";
     }
 
-    downloadFile(content, "text/plain", `valid_cookies_${dateStamp()}.txt`);
+    downloadFile(content, "text/plain", `valid_netflix_${dateStamp()}.txt`);
   }, [results]);
 
   const exportJSON = useCallback(() => {

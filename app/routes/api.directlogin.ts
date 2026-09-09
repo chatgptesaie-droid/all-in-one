@@ -16,6 +16,13 @@ function parseSetCookies(setCookieHeaders: string[] | string | null): Record<str
   return cookies;
 }
 
+function getSetCookieValues(headers: Headers): string[] {
+  const getSetCookie = (headers as Headers & { getSetCookie?: () => string[] }).getSetCookie;
+  if (typeof getSetCookie === "function") return getSetCookie.call(headers);
+  const combined = headers.get("set-cookie");
+  return combined ? combined.split(/,(?=\s*[^;,=]+\s*=)/) : [];
+}
+
 type NetflixAccountInfo = Record<string, string | number | boolean | string[]>;
 
 type DirectLoginResult = {
@@ -157,7 +164,7 @@ async function followRedirects(
     });
 
     status = response.status;
-    Object.assign(cookies, parseSetCookies(response.headers.get("set-cookie")));
+    Object.assign(cookies, parseSetCookies(getSetCookieValues(response.headers)));
 
     const location = response.headers.get("location") || "";
     if (location && [301, 302, 303, 307, 308].includes(status)) {
@@ -174,6 +181,38 @@ async function followRedirects(
   }
 
   return { finalUrl: currentUrl, status, cookies, loginRedirect };
+}
+
+async function fetchWithSession(
+  startUrl: string,
+  headers: Record<string, string>,
+  cookies: Record<string, string>,
+  maxRedirects = 10
+): Promise<{ response: Response; finalUrl: string; body: string; cookies: Record<string, string> }> {
+  let currentUrl = startUrl;
+  for (let redirectCount = 0; redirectCount < maxRedirects; redirectCount += 1) {
+    const response = await fetch(currentUrl, {
+      headers: { ...headers, Cookie: buildCookieHeader(cookies) },
+      redirect: "manual",
+    });
+    Object.assign(cookies, parseSetCookies(getSetCookieValues(response.headers)));
+    const location = response.headers.get("location");
+    if (location && [301, 302, 303, 307, 308].includes(response.status)) {
+      currentUrl = new URL(location, currentUrl).toString();
+      continue;
+    }
+    return { response, finalUrl: currentUrl, body: await response.text(), cookies };
+  }
+  throw new Error("Trop de redirections");
+}
+
+function isNetflixBrowseUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.hostname.endsWith("netflix.com") && parsed.pathname.replace(/\/+$/, "") === "/browse";
+  } catch {
+    return false;
+  }
 }
 
 export async function action({ request }: { request: Request }) {
@@ -256,60 +295,29 @@ export async function action({ request }: { request: Request }) {
 
         if (!result.message) {
           try {
-            const firstVisit = await followRedirects(urlString, headers);
-            await new Promise((resolve) => setTimeout(resolve, 15000));
-
-            const accountResp = await fetch("https://www.netflix.com/account", {
-              headers: {
-                ...headers,
-                Cookie: buildCookieHeader(firstVisit.cookies),
-              },
-              redirect: "manual",
-            });
-
-            const accountLocation = accountResp.headers.get("location") || "";
-            const accountHtml = await accountResp.text();
-            const accountInfo = parseNetflixAccountInfo(accountHtml);
-            const profileNames = parseNetflixBrowseProfiles(accountHtml);
-            const accountLocationLower = accountLocation.toLowerCase();
-            const accountLoginRedirect = accountLocationLower.includes("/login");
-            let accountOk = accountResp.status === 200 && Object.keys(accountInfo).length > 0;
-            let finalUrl = accountOk ? "https://www.netflix.com/account" : firstVisit.finalUrl;
-            let message = accountOk
-              ? `Valide - /account accessible`
-              : `Invalide - /account non accessible`;
-            let resultProfileNames = profileNames;
-
-            if (!accountOk && accountLoginRedirect) {
-              await new Promise((resolve) => setTimeout(resolve, 5000));
-
-              const browseResp = await fetch("https://www.netflix.com/browse", {
-                headers: {
-                  ...headers,
-                  Cookie: buildCookieHeader(firstVisit.cookies),
-                },
-                redirect: "manual",
-              });
-
-              const browseHtml = await browseResp.text();
-              const browseNames = parseNetflixBrowseProfiles(browseHtml);
-              const browseOk = browseResp.status === 200 && browseNames.length > 0;
-
-              if (browseOk) {
-                accountOk = true;
-                finalUrl = "https://www.netflix.com/browse";
-                message = `Valide - /browse accessible après redirection login`;
-                resultProfileNames = browseNames;
-              }
-            }
+            const firstVisit = await fetchWithSession(urlString, headers, {});
+            const browseNames = parseNetflixBrowseProfiles(firstVisit.body);
+            const browseOk = firstVisit.response.status === 200 && isNetflixBrowseUrl(firstVisit.finalUrl) && browseNames.length > 0;
+            const accountVisit = await fetchWithSession("https://www.netflix.com/account", headers, firstVisit.cookies);
+            const accountInfo = parseNetflixAccountInfo(accountVisit.body);
+            const accountLoginRedirect = accountVisit.finalUrl.toLowerCase().includes("/login");
+            const accountOk = accountVisit.response.status === 200 && !accountLoginRedirect && !isNetflixBrowseUrl(accountVisit.finalUrl) && Object.keys(accountInfo).length > 0;
+            const accountProfileNames = parseNetflixBrowseProfiles(accountVisit.body);
+            const isValid = browseOk && accountOk;
+            const finalUrl = accountOk ? accountVisit.finalUrl : firstVisit.finalUrl;
+            const message = !browseOk
+              ? `Invalide - redirection finale différente de /browse`
+              : !accountOk
+                ? `Invalide - /account non accessible`
+                : `Valide - /browse puis /account accessibles`;
 
             result = {
               ...result,
-              isValid: accountOk,
+              isValid,
               finalUrl,
-              status: accountResp.status,
+              status: accountVisit.response.status,
               message,
-              profileNames: resultProfileNames,
+              profileNames: browseNames.length > 0 ? browseNames : accountProfileNames,
               accountInfo,
             };
           } catch (error) {
