@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: netcookies-crunchyroll-api
+    runtime: python
+    buildCommand: pip install -r requirements-crunchyroll.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT crunchyroll_api:app
+    healthCheckPath: /health

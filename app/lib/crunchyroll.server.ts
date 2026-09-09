@@ -1,61 +1,25 @@
-import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import type { CookieBatch, ValidationResult } from "~/lib/netflix.server";
 import { formatBatchNetscape } from "~/lib/netflix.server";
 
-function runPython(cookieText: string): Promise<{ isValid: boolean; message: string; accountInfo: Record<string, unknown> }> {
-  return new Promise((resolve) => {
-    const commands = process.platform === "win32" ? ["python", "py"] : ["python3", "python"];
-    const script = existsSync(join(process.cwd(), "cr_api_runner.py"))
-      ? join(process.cwd(), "cr_api_runner.py")
-      : join(process.cwd(), "..", "cr_api_runner.py");
-    let commandIndex = 0;
-    let stdout = "";
-    let stderr = "";
-    let child: ReturnType<typeof spawn> | null = null;
-
-    const start = () => {
-      const command = commands[commandIndex++];
-      if (!command) {
-        resolve({ isValid: false, message: "Python est introuvable sur le serveur", accountInfo: { runner_error: stderr.slice(0, 300) } });
-        return;
-      }
-      stdout = "";
-      stderr = "";
-      const processChild = spawn(command, [script], { cwd: process.cwd(), stdio: ["pipe", "pipe", "pipe"] });
-      child = processChild;
-      processChild.stdout.on("data", (chunk: Buffer) => { stdout += chunk.toString(); });
-      processChild.stderr.on("data", (chunk: Buffer) => { stderr += chunk.toString(); });
-      processChild.on("error", () => start());
-      processChild.on("close", (code) => {
-        if (code === 0 || stdout.trim()) {
-          try {
-            const parsed = JSON.parse(stdout.trim()) as { isValid?: boolean; message?: string; accountInfo?: Record<string, unknown> };
-            resolve({ isValid: parsed.isValid === true, message: parsed.message || "Résultat Crunchyroll", accountInfo: parsed.accountInfo || {} });
-          } catch {
-            resolve({ isValid: false, message: "Réponse Python invalide", accountInfo: { runner_output: stdout.slice(0, 300), runner_error: stderr.slice(0, 300) } });
-          }
-          return;
-        }
-        start();
-      });
-      processChild.stdin.write(cookieText);
-      processChild.stdin.end();
-    };
-    start();
-  });
+function makeResult(batch: CookieBatch, isValid: boolean, message: string, accountInfo: Record<string, unknown>): ValidationResult {
+  return { batchIndex: batch.index, isValid, message, netflixId: null, cookiesData: batch.cookies, accountInfo, netscapeFormat: formatBatchNetscape(batch.cookies) };
 }
 
 export async function validateCrunchyrollBatch(batch: CookieBatch): Promise<ValidationResult> {
-  const result = await runPython(formatBatchNetscape(batch.cookies));
-  return {
-    batchIndex: batch.index,
-    isValid: result.isValid,
-    message: result.message,
-    netflixId: null,
-    cookiesData: batch.cookies,
-    accountInfo: result.accountInfo,
-    netscapeFormat: formatBatchNetscape(batch.cookies),
-  };
+  const apiUrl = process.env.CRUNCHYROLL_API_URL?.replace(/\/$/, "");
+  if (!apiUrl) return makeResult(batch, false, "CRUNCHYROLL_API_URL n'est pas configurée", {});
+
+  try {
+    const response = await fetch(`${apiUrl}/check`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ cookies: formatBatchNetscape(batch.cookies) }),
+      signal: AbortSignal.timeout(60_000),
+    });
+    const data = await response.json().catch(() => ({})) as { isValid?: boolean; message?: string; accountInfo?: Record<string, unknown> };
+    if (!response.ok) return makeResult(batch, false, data.message || `API Flask Crunchyroll HTTP ${response.status}`, data.accountInfo || {});
+    return makeResult(batch, data.isValid === true, data.message || "Résultat Crunchyroll", data.accountInfo || {});
+  } catch (error) {
+    return makeResult(batch, false, `API Flask Crunchyroll inaccessible: ${error instanceof Error ? error.message : "Inconnue"}`, {});
+  }
 }
