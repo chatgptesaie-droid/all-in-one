@@ -92,7 +92,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     { to: "/", label: "Netflix", end: true },
                     { to: "/prime", label: "Prime" },
                     // { to: "/spotify", label: "Spotify" },
-                    { to: "/crunchyroll", label: "Crunchyroll" },
+                    // { to: "/crunchyroll", label: "Crunchyroll" },
                     // { to: "/paramount", label: "Paramount+" },
                     // { to: "/capcut", label: "CapCut" },
                     // { to: "/perplexity", label: "Perplexity" },

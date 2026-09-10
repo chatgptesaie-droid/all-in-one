@@ -33,6 +33,7 @@ function parseCrunchyrollBatches(value: string): CookieBatch[] {
   const groups: Array<{ name?: string; lines: string[] }> = [];
   let current: { name?: string; lines: string[] } = { lines: [] };
   let hasMarkers = false;
+  let hasBlankSeparators = false;
   for (const line of lines) {
     const trimmed = line.trim();
     const match = trimmed.match(marker);
@@ -41,6 +42,10 @@ function parseCrunchyrollBatches(value: string): CookieBatch[] {
       hasMarkers = true;
       if (current.lines.length) groups.push(current);
       current = { name: (match || fileMatch)?.[1], lines: [] };
+    } else if (!trimmed && current.lines.some((item) => item.trim())) {
+      hasBlankSeparators = true;
+      groups.push(current);
+      current = { lines: [] };
     } else {
       current.lines.push(line);
     }
@@ -52,7 +57,7 @@ function parseCrunchyrollBatches(value: string): CookieBatch[] {
     rawLine: group.name || group.lines.find((line) => line.trim() && !line.trim().startsWith("#"))?.slice(0, 120) || "Crunchyroll",
     ...(group.name ? { sourceFile: group.name } : {}),
   })).filter((batch) => batch.cookies.length > 0);
-  if (batches.length || hasMarkers) return batches;
+  if (batches.length || hasMarkers || hasBlankSeparators) return batches;
   return parseCookiesFromText(value);
 }
 
