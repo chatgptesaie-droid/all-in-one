@@ -660,13 +660,13 @@ function PrimeDetails({ result }: { result: any }) {
       {/* Cookies */}
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-[11px] uppercase tracking-wider font-medium" style={{ color: "var(--text-subtle)" }}>Cookies (Netscape)</h3>
-          <button onClick={() => copyText(result.netscapeFormat || "")} className="text-[11px] transition-colors hover:opacity-70" style={{ color: "var(--text-muted)" }}>
+          <h3 className="text-[11px] uppercase tracking-wider font-medium" style={{ color: "var(--text-subtle)" }}>Cookies (JSON)</h3>
+          <button onClick={() => copyText(JSON.stringify(result.cookiesData || [], null, 2))} className="text-[11px] transition-colors hover:opacity-70" style={{ color: "var(--text-muted)" }}>
             Copier
           </button>
         </div>
         <pre className="text-[11px] font-mono rounded-lg p-3 border whitespace-pre-wrap break-all max-h-[280px] overflow-auto" style={{ color: "var(--text-subtle)", background: "var(--bg)", borderColor: "var(--border)" }}>
-          {result.netscapeFormat || "-"}
+          {JSON.stringify(result.cookiesData || [], null, 2)}
         </pre>
       </section>
 
