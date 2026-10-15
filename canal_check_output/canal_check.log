@@ -1,0 +1,113 @@
+2026-10-05 11:05:24,346 | INFO | Loading cookie file: canal.txt
+2026-10-05 11:05:24,429 | WARNING | Ignoring malformed line 14
+2026-10-05 11:05:24,694 | WARNING | Ignoring malformed line 21
+2026-10-05 11:05:24,945 | INFO | Parsed 18 total cookies; selected 18 Canal+ cookies
+2026-10-05 11:05:25,032 | INFO | Injected 18 cookies into session
+2026-10-05 11:05:25,048 | INFO | Requesting (first load): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:05:27,127 | INFO | Reloading (second request): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:05:27,781 | INFO | Final URL   : https://www.canalplus.com/tg/moncompte
+2026-10-05 11:05:27,782 | INFO | Status code : 200
+2026-10-05 11:05:27,826 | INFO | passId found in cookie file
+2026-10-05 11:05:27,832 | INFO | Requesting player configuration: https://player.canalplus.com/one/configs/v2/13/mycanalafr/prod.json
+2026-10-05 11:05:28,079 | INFO | portailId extracted
+2026-10-05 11:05:28,079 | INFO | Requesting createToken
+2026-10-05 11:05:28,438 | INFO | passToken received
+2026-10-05 11:05:28,438 | INFO | Requesting Hodor account page: https://hodor.canalplus.pro/api/v2/mycanal/page/463d215e5c2555ce704ede224689e9d8/107248.json
+2026-10-05 11:05:28,823 | INFO | Hodor account fields extracted
+2026-10-05 11:05:28,823 | INFO | Requesting Canal+ profiles: https://hodor.canalplus.pro/api/v2/mycanal/me/Profiles
+2026-10-05 11:05:29,121 | INFO | Profiles extracted: 3 profiles
+2026-10-05 11:12:13,756 | INFO | Loading cookie file: canal.txt
+2026-10-05 11:12:13,757 | WARNING | Ignoring malformed line 14
+2026-10-05 11:12:13,758 | WARNING | Ignoring malformed line 21
+2026-10-05 11:12:13,758 | INFO | Parsed 18 total cookies; selected 18 Canal+ cookies
+2026-10-05 11:12:13,759 | INFO | Injected 18 cookies into session
+2026-10-05 11:12:13,760 | INFO | Requesting (first load): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:12:14,732 | INFO | Reloading (second request): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:12:15,343 | INFO | Final URL   : https://www.canalplus.com/tg/moncompte
+2026-10-05 11:12:15,343 | INFO | Status code : 200
+2026-10-05 11:12:15,369 | INFO | passId found in cookie file
+2026-10-05 11:12:15,371 | INFO | Requesting player configuration: https://player.canalplus.com/one/configs/v2/13/mycanalafr/prod.json
+2026-10-05 11:12:15,751 | INFO | portailId extracted
+2026-10-05 11:12:15,751 | INFO | Requesting createToken
+2026-10-05 11:12:16,154 | INFO | passToken received
+2026-10-05 11:12:16,154 | INFO | Requesting Hodor account page: https://hodor.canalplus.pro/api/v2/mycanal/page/463d215e5c2555ce704ede224689e9d8/107248.json
+2026-10-05 11:12:16,452 | INFO | Hodor HTTP status: 401
+2026-10-05 11:12:16,452 | WARNING | Hodor returned non-OK status 401
+2026-10-05 11:12:16,453 | INFO | Hodor raw response saved to canal_check_output\hodor_response.json
+2026-10-05 11:12:16,453 | INFO | Hodor account fields extracted
+2026-10-05 11:12:16,453 | INFO | Requesting Canal+ profiles: https://hodor.canalplus.pro/api/v2/mycanal/me/Profiles
+2026-10-05 11:12:16,798 | INFO | Profiles extracted: 3 profiles
+2026-10-05 11:24:46,032 | INFO | Loading cookie file: canal.txt
+2026-10-05 11:24:46,033 | WARNING | Ignoring malformed line 14
+2026-10-05 11:24:46,034 | WARNING | Ignoring malformed line 21
+2026-10-05 11:24:46,036 | INFO | Parsed 18 total cookies; selected 18 Canal+ cookies
+2026-10-05 11:24:46,037 | INFO | Injected 18 cookies into session
+2026-10-05 11:24:46,037 | INFO | Requesting (first load): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:24:47,110 | INFO | Reloading (second request): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:24:48,073 | INFO | Final URL   : https://www.canalplus.com/tg/moncompte
+2026-10-05 11:24:48,073 | INFO | Status code : 200
+2026-10-05 11:24:48,094 | INFO | passId found in cookie file
+2026-10-05 11:24:48,095 | INFO | Requesting player configuration: https://player.canalplus.com/one/configs/v2/13/mycanalafr/prod.json
+2026-10-05 11:24:48,273 | INFO | portailId extracted
+2026-10-05 11:24:48,273 | INFO | Requesting createToken
+2026-10-05 11:24:48,611 | INFO | passToken received
+2026-10-05 11:24:48,612 | INFO | Requesting Hodor account page: https://hodor.canalplus.pro/api/v2/mycanal/page/19da938adbc5b2e6bc5632d81d317cc7/107248.json
+2026-10-05 11:24:49,190 | INFO | Hodor HTTP status: 200
+2026-10-05 11:24:49,197 | INFO | Hodor raw response saved to canal_check_output\hodor_response.json
+2026-10-05 11:24:49,214 | INFO | Hodor account fields extracted
+2026-10-05 11:24:49,216 | INFO | Requesting Canal+ profiles: https://hodor.canalplus.pro/api/v2/mycanal/me/Profiles
+2026-10-05 11:24:49,490 | INFO | Profiles extracted: 3 profiles
+2026-10-05 11:30:41,127 | INFO | Loading cookie file: canal.txt
+2026-10-05 11:30:41,138 | WARNING | Ignoring malformed line 14
+2026-10-05 11:30:41,139 | WARNING | Ignoring malformed line 21
+2026-10-05 11:30:41,139 | INFO | Parsed 18 total cookies; selected 18 Canal+ cookies
+2026-10-05 11:30:41,174 | INFO | Injected 18 cookies into session
+2026-10-05 11:30:41,177 | INFO | Requesting (first load): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:30:42,146 | INFO | Reloading (second request): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:30:42,744 | INFO | Final URL   : https://www.canalplus.com/tg/moncompte
+2026-10-05 11:30:42,744 | INFO | Status code : 200
+2026-10-05 11:30:42,769 | INFO | passId found in cookie file
+2026-10-05 11:30:42,769 | INFO | Requesting player configuration: https://player.canalplus.com/one/configs/v2/13/mycanalafr/prod.json
+2026-10-05 11:30:43,055 | INFO | portailId extracted
+2026-10-05 11:30:43,055 | INFO | Requesting createToken
+2026-10-05 11:30:43,402 | INFO | passToken received
+2026-10-05 11:30:43,402 | INFO | Requesting Hodor account page: https://hodor.canalplus.pro/api/v2/mycanal/page/# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This file was generated by Cookie-Editor
+.canalplus.com	TRUE	/	FALSE	1791283956	recommandations	true
+.canalplus.com	TRUE	/	TRUE	1822730702	profileId	0
+.canalplus.com	TRUE	/	FALSE	1806493847	didomi_token	eyJ1c2VyX2lkIjoiMWEwZWQwMGItYzZlZS02YTcwLTkwZTctNjFiZmZmMmVjNWY5IiwiY3JlYXRlZCI6IjIwMjYtMDktMjlUMTE6NTA6NDMuNTY2WiIsInVwZGF0ZWQiOiIyMDI2LTA5LTI5VDExOjUwOjQ3LjE3NVoiLCJ2ZW5kb3JzIjp7ImVuYWJsZWQiOlsiZ29vZ2xlIiwidHdpdHRlciIsImM6ZGlzY292ZXJ5LUNBUXRrZ3h3IiwiYzpvcGVuYWktN25kRmRyeGMiLCJjOnplbWFudGFpbi1EQ3hDZHh3dyIsImM6a3dvcmRzLVpuTmM4YVBCIiwiYzphbHRhcmVzLUJSM2RnZ3puIiwiYzpzdG9ubHktbnlFcko2NEgiLCJjOm1lZGlhYnktTks3Szg5cVciLCJjOnJva3Qtd3FBdEFaUmsiLCJjOmVjcmFubGFyZy1XM0M2eFVZaCIsImM6c2VyaWVvdXNseS1ZSHhNM0JSOCIsImM6bWF0Y2hlbmQtd2hYYVU4NGIiLCJjOnZpb3VzbHktVlpLZ2d4Q04iLCJjOm02cHVibGljaS14bmdHamtFeiIsImM6YWx0aWNlbWVkLVpDMnRBUXFVIiwiYzpmcmFuY2V0di1pUnBQRlkyUCIsImM6bWVldHJpY3NnLU5kRU44V3hUIiwiYzp0aWt0b2stWmtYUWhlQXIiLCJjOmxlcGFyaXNpZW4tZnJEamtlN0oiLCJjOm1ldGEtWDNxTGE0VGsiLCJjOnNuYXBjaGF0LXhhSHlwR0t3IiwiYzpzaG93cm9vbXAtMkhReWVZMkEiLCJjOmxlZmlnYXJvLWZXdFdZNDg4IiwiYzphbWF1cnltZWQtcW1KcDhaM3oiLCJjOmFkdmVyc3BvcnQtenRnQ1RZUloiLCJjOm91ZXN0ZnJhbi03RDZSNmlWWiIsImM6d2ViZWRpYS1LeExxWHJXRSIsImM6YWxsaWFuY2VnLUNoZEFkOUc4IiwiYzpldXJvc3BvcnQtRlpqVHFVVlEiLCJjOm9yYW5nZS1CRjhha0xoYSIsImM6cmV3b3JsZG1lLVVFV0RkYTZ4IiwiYzpob3J5em9ubWUtYnp3eDg3QmMiLCJjOjIwbWludXRlcy13Zmc4UVBYQyIsImM6bmV3Y29tbWUtUXJwZ0J0TnQiLCJjOnR3aXRjaC1LSmFNRkRlRCIsImM6bGlua2VkaW4td0VpbUFQeFYiLCJjOjM2Ni1HbU5rVmFwSiIsImM6Y2FyYWRpc2lhYy05eldpVUVMciIsImM6YWQzNjBtZWQtWExVTWJYcEoiLCJjOnVuaWZ5LWJaODdMRGdkIiwiYzptcHVibGljaXQtTTJZaEJWckYiLCJjOnNwb3J0bG9jYS03UmV4R25DZiIsImM6b25lZm9vdGJhLXo4VmRLeExmIiwiYzpsZXR1ZGlhbnQtNHFBNlBWWnciLCJjOm1vbnBldGl0LVJyWm1aalBDIiwiYzp0b25zc2VyLXdmTTZQdHluIiwiYzpzcG9ydGVhc3ktTGFreEVqY3ciLCJjOnZlZXBlZS1uRGNpVVhxciIsImM6c25jZmNvbm5lLXE4bU1uUEozIiwiYzpzZW5zY3JpdGktamhHbUVnYnkiLCJjOnpldGEtZmVYVHpkS2ciLCJjOmJydXQtUFhSQURyWTQiLCJjOmNvbnRlbnRzcXUtWEdaTVFjeWEiLCJjOmFidGFzdHktQ1pUVzIzcjMiLCJjOnJldGFpbGluay1ZcDZpNkczWiIsImM6YmV0YXNlcmllcy1nUGFHZVlZMyIsImM6dmVyaXpvbm1lLVBqYzlyRUdtIiwiYzpxd2FycnktVGVWZkhNTTYiLCJjOm1hbml0b2JhLTl4aGlQZEZHIiwiYzpwb3dlcnNwYWNlLXh5eXBSNGpOIiwiYzptaWNyb3NvZnQtRGNnQ3hXUWoiXX0sInB1cnBvc2VzIjp7ImVuYWJsZWQiOlsiYW5hbHl0aWNzIiwiYWR2ZXJ0aXNpbmciXX0sInZlcnNpb24iOjIsImFjIjoiQnlHQUdBRmtBOHdISVFBQS5BQUFBIn0=
+.canalplus.com	TRUE	/	FALSE	1806493847	euconsent-v2	CQrTfsAQrTfsAAHABBENCyFgAPLAAAAAAAqILPkB7CLMAWFgQTBEAIMECIAcxBAAqEAgBAIIgAAAABAAIIwAkGAAIAAAAAAKAAAAIAABAAAAAADAAAAAAAAAAABIAAAQABAAICAAAAARAAAACAABGQBAEAAQAAAAAAAAgAIAAAoAAEAAAAAAAQAAAAAAAIAAAAAAAAAgAAAAAAAAAiwACAAAAAAAAAAAAFgAEAAAAAAAAAAQAAAABAAAIAAAAAAAAAAAAAAAAAAAAAAACIAAAAgNfABANeAQQAAwABBnIYABgACDOQoADAAEGciwAGAAIM5DoAMAAQZyCQAYAAgzkSgAwABBnIpABgACDOQA.ILPkB7CLMAWFgQTBEAIMECIAcxBAAqEAgBAIIgAAAABAAIIwAkGAAIAAAAAAKAAAAIAABAAAAAAjAAAAAAAAAAABIAAAQABAAICAAAAARAAAACAABGQBAEAAQAAAAAAAAgAIAAAoAAEAAAAAAAQAAAAAAAIAAAAAAAAAgAAAAAAAAAiwACAAAAAAAAAAAAFgAEAAAAAAAAAAQAAAABAAAIAAAAAAAAAAAAAAAAAAAAAAACIAAAAg.flgAAAAAAAAA
+.canalplus.com	TRUE	/	TRUE	1806919493	statsAllowed	true
+.canalplus.com	TRUE	/	TRUE	1791199346	sessionId	1791194692254-205a8616b5da
+.canalplus.com	TRUE	/	TRUE	1791198292	abTestingPopulation	1
+.canalplus.com	TRUE	/	TRUE	1825322693	deviceId	1790682644162-7e0474fb8396:1:1790682644162-4a77ab70650a
+#HttpOnly_www.canalplus.com	FALSE	/	TRUE	1791283956	hodorKey	164e8fbed8-990175303
+.canalplus.com	TRUE	/	TRUE	1793786702	tokenCMS	19da938adbc5b2e6bc5632d81d317cc7
+.canalplus.com	TRUE	/	FALSE	1824378654	segment	
+.canalplus.com	TRUE	/	TRUE	1825754691	p_pass_token	CI=AAAAECPdGW0wVe/luWetjIi4M/zehM88br8ZPBXNQuofVQp2s8MgE77WIhnc5AJ54XitV5j40JD38HxYSqgSdch3K8vVGt8GCKjAEbn1bhO7DHG0P26S3QTdz0E7kqBxFCz9GXmeD/m+ebQ/+BkiELD4eNe35CSxJfMC+LPFDfQAseZ7
+.canalplus.com	TRUE	/	TRUE	1806919493	adsAllowed	true
+www.canalplus.com	FALSE	/	TRUE	1791283956	akacd_Blue_Green_SPA	3968480120~rv=40~id=2b7cc1c76f097e67f29ae533111d6127
+.canalplus.com	TRUE	/	TRUE	1806919493	anonymousAllowed	true
+.canalplus.com	TRUE	/	TRUE	1822730702	isKidsProfile	false
+.canalplus.com	TRUE	/	TRUE	1825754691	passId	CI=AAAAECPdGW0wVe/luWetjIi4M/zehM88br8ZPBXNQuofVQp2s8MgE77WIhnc5AJ54XitV5j40JD38HxYSqgSdch3K8vVGt8GCKjAEbn1bhO7DHG0P26S3QTdz0E7kqBxFCz9GXmeD/m+ebQ/+BkiELD4eNe35CSxJfMC+LPFDfQAseZ7
+www.canalplus.com	FALSE	/tg	FALSE	1791283956	split_cookie	
+.canalplus.com	TRUE	/	TRUE	1791199346	whoIsWatchingSession.101482628	true
+www.canalplus.com	FALSE	/	TRUE	1791283956	zone	tg/107248.json
+2026-10-05 11:30:43,704 | INFO | Hodor HTTP status: 404
+2026-10-05 11:30:43,708 | WARNING | Hodor returned non-OK status 404
+2026-10-05 11:30:43,710 | INFO | Hodor raw response saved to canal_check_output\hodor_response.json
+2026-10-05 11:30:43,711 | INFO | Hodor account fields extracted
+2026-10-05 11:30:43,714 | INFO | Requesting Canal+ profiles: https://hodor.canalplus.pro/api/v2/mycanal/me/Profiles
+2026-10-05 11:30:43,933 | INFO | Profiles extracted: 3 profiles
+2026-10-05 11:52:00,830 | INFO | Loading cookie file: canal.txt
+2026-10-05 11:52:00,831 | WARNING | Ignoring malformed line 14
+2026-10-05 11:52:00,832 | WARNING | Ignoring malformed line 21
+2026-10-05 11:52:00,832 | INFO | Parsed 18 total cookies; selected 18 Canal+ cookies
+2026-10-05 11:52:00,833 | INFO | Injected 18 cookies into session
+2026-10-05 11:52:00,833 | INFO | Requesting (first load): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:52:02,151 | INFO | Reloading (second request): https://www.canalplus.com/tg/moncompte
+2026-10-05 11:52:02,863 | INFO | Final URL   : https://www.canalplus.com/tg/moncompte
+2026-10-05 11:52:02,864 | INFO | Status code : 200
+2026-10-05 11:52:02,867 | INFO | HTML snapshot saved → canal_check_output\canal_page.html
+2026-10-05 11:52:02,881 | INFO | JSON result  saved → canal_check_output\canal_result.json

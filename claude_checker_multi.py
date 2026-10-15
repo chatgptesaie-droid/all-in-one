@@ -9,7 +9,7 @@ Pour chaque bloc → appel /edge-api/bootstrap/{org_id}/app_start
 Résultat → JSON  { "cookie_1": {...}, "cookie_2": {...}, ... }
 
 Usage:
-    python claude_checker_multi.py cookies.txt
+    python claude_checker_multi.py crunchy.txt
     python claude_checker_multi.py cookies.txt --output results.json
 """
 
@@ -25,7 +25,7 @@ import requests
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/151.0.0.0"
 )
 
 

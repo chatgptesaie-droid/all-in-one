@@ -16,7 +16,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 CLAUDE_HOME = "https://claude.ai/"
 CLAUDE_SETTINGS = "https://claude.ai/settings/billing"
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/151.0.0.0"
 
 
 def find_chrome() -> str | None:
@@ -136,6 +136,7 @@ def check(cookies: list[dict[str, Any]], timeout: int = 30) -> dict[str, Any]:
         "name": "-",
         "uuid": "-",
         "plan": "-",
+        "analytics_subscription_plan": "-",
         "rate_upsell": "-",
         "org_name": "-",
         "org_id": org_id or "-",
@@ -163,7 +164,7 @@ def check(cookies: list[dict[str, Any]], timeout: int = 30) -> dict[str, Any]:
 
     driver = None
     try:
-        driver = uc.Chrome(options=options, headless=headless, version_main=151)
+        driver = uc.Chrome(options=options, headless=headless, version_main=153)
         driver.set_page_load_timeout(timeout)
         print("[Claude] Ouverture de Claude dans Chrome...")
         driver.get(CLAUDE_HOME)
@@ -185,15 +186,22 @@ def check(cookies: list[dict[str, Any]], timeout: int = 30) -> dict[str, Any]:
         payload = bootstrap.get("body") or {}
         account = payload.get("account") or {}
         memberships = account.get("memberships") or []
-        membership = memberships[0] if memberships else {}
+        # Chercher le membership correspondant à lastActiveOrg (org_id du cookie)
+        membership = next(
+            (m for m in memberships if (m.get("organization") or {}).get("uuid") == org_id),
+            memberships[0] if memberships else {}
+        )
         organization = membership.get("organization") or {}
         rate_upsell = organization.get("rate_limit_upsell") or ""
+        analytics_plan = organization.get("analytics_subscription_plan") or account.get("analytics_subscription_plan") or ""
         seat_tier = membership.get("seat_tier") or organization.get("plan_tier")
         billing_type = organization.get("billing_type")
         if seat_tier:
             plan = seat_tier
         elif billing_type:
             plan = billing_type
+        elif analytics_plan:
+            plan = analytics_plan
         elif rate_upsell == "upgrade_to_pro":
             plan = "FREE"
         elif not rate_upsell:
@@ -213,6 +221,7 @@ def check(cookies: list[dict[str, Any]], timeout: int = 30) -> dict[str, Any]:
             "name": account.get("full_name") or account.get("display_name") or "-",
             "uuid": account.get("uuid") or "-",
             "plan": result["plan"] or plan,
+            "analytics_subscription_plan": analytics_plan or "-",
             "rate_upsell": rate_upsell or "-",
             "org_name": organization.get("name") or "-",
             "features": features,

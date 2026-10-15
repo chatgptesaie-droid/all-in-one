@@ -79,6 +79,7 @@ export async function validateClaudeBatch(batch: CookieBatch): Promise<Validatio
       name: body.name || "-",
       uuid: body.uuid || "-",
       plan: body.plan || "-",
+      analytics_subscription_plan: body.analytics_subscription_plan || "-",
       rate_upsell: body.rate_upsell || "-",
       org_name: body.org_name || "-",
       org_id: body.org_id || getCookieMap(batch.cookies).get("lastActiveOrg") || "-",

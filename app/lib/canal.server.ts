@@ -3,15 +3,15 @@ import { formatBatchNetscape } from "~/lib/netflix.server";
 
 const CONFIG_URL = "https://player.canalplus.com/one/configs/v2/13/mycanalafr/prod.json";
 const TOKEN_URL = "https://pass-api-v2.canal-plus.com/provider/services/cpafr-tg/public/createToken";
-const HODOR_URL = "https://hodor.canalplus.pro/api/v2/mycanal/page/463d215e5c2555ce704ede224689e9d8/107248.json";
+const HODOR_URL = "https://hodor.canalplus.pro/api/v2/mycanal/page/{tokenCMS}/107248.json";
 const PROFILES_URL = "https://hodor.canalplus.pro/api/v2/mycanal/me/Profiles";
 const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0";
 
 export function parseCanalCookiesFromText(content: string): CookieBatch[] {
   const batches: CookieBatch[] = [];
-  const simpleCookieBatches = content
-    .replace(/\r/g, "")
-    .split("\n")
+  const lines = content.replace(/\r/g, "").split("\n");
+  const hasNetscapeCookies = lines.some((line) => line.trim().startsWith("#HttpOnly_") || line.split("\t").length >= 7);
+  const simpleCookieBatches = (hasNetscapeCookies ? [] : lines)
     .map((line) => ({ line: line.trim(), cookies: parseCookieLine(line) }))
     .filter(({ cookies }) => cookies.some((cookie) => cookie.name === "passId"));
 
@@ -25,7 +25,7 @@ export function parseCanalCookiesFromText(content: string): CookieBatch[] {
 
   const groups = content.replace(/\r/g, "").split(/\n\s*\n/).map((group) => group.trim()).filter(Boolean);
   for (const group of groups) {
-    const cookies = group.split("\n").flatMap(parseCookieLine).filter((cookie) => /(?:^|\.)canalplus\.com$/i.test(cookie.domain.replace(/^\./, "")) || cookie.domain.toLowerCase().includes("canalplus.com"));
+    const cookies = group.split("\n").flatMap(parseCookieLine).filter((cookie) => cookie.name === "passId" || cookie.name === "tokenCMS" || /(?:^|\.)canalplus\.com$/i.test(cookie.domain.replace(/^\./, "")) || cookie.domain.toLowerCase().includes("canalplus.com"));
     if (cookies.length) batches.push({ index: batches.length + 1, cookies, rawLine: group.slice(0, 120) });
   }
   if (!batches.length) {
@@ -100,7 +100,14 @@ function getExpiryStatus(value: string | null): "active" | "expired" | "unknown"
 export async function validateCanalBatch(batch: CookieBatch): Promise<ValidationResult> {
   const base = { batchIndex: batch.index, netflixId: null, cookiesData: batch.cookies, netscapeFormat: formatBatchNetscape(batch.cookies) };
   const passCookie = batch.cookies.find((cookie) => cookie.name === "passId");
-  if (!passCookie) return { ...base, isValid: false, message: "Cookie passId introuvable", accountInfo: {} };
+  const tokenCMSCookie = batch.cookies.find((cookie) => cookie.name === "tokenCMS");
+  if (!passCookie || !tokenCMSCookie) {
+    const missingCookie = !passCookie ? "passId" : "tokenCMS";
+    return { ...base, isValid: false, message: `Cookie ${missingCookie} introuvable`, accountInfo: {} };
+  }
+  const tokenCMS = tokenCMSCookie.value.includes(":")
+    ? tokenCMSCookie.value.split(":", 2)[1]
+    : tokenCMSCookie.value;
 
   try {
     const commonHeaders = { "User-Agent": USER_AGENT, Accept: "*/*", "Accept-Language": "fr,fr-FR;q=0.9,en-US;q=0.8,en;q=0.7", Referer: "https://www.canalplus.com/", Origin: "https://www.canalplus.com" };
@@ -113,13 +120,14 @@ export async function validateCanalBatch(batch: CookieBatch): Promise<Validation
     if (!token.response.ok || typeof passToken !== "string") throw new Error(`createToken HTTP ${token.response.status}`);
 
     const authHeaders = { ...commonHeaders, "xx-operator": "pc", "xx-profile-id": "0", tokenPass: passToken };
+    const hodorUrl = HODOR_URL.replace("{tokenCMS}", encodeURIComponent(tokenCMS));
     const profilesUrl = `${PROFILES_URL}?${new URLSearchParams({
       displayTemplate: "profilesSelection",
       allowedProfiles: "kids,adult",
       profilesTemplateVersion: "2",
     })}`;
     const [account, profiles] = await Promise.all([
-      jsonRequest(HODOR_URL, { headers: authHeaders, method: "GET" }),
+      jsonRequest(hodorUrl, { headers: authHeaders, method: "GET" }),
       jsonRequest(profilesUrl, { headers: authHeaders, method: "GET" }),
     ]);
     const accountFields = findAccountFields(account.body);

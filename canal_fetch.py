@@ -16,7 +16,7 @@ import requests
 
 DEFAULT_URL = "https://player.canalplus.com/one/configs/v2/13/mycanalafr/prod.json"
 DEFAULT_TOKEN_URL = "https://pass-api-v2.canal-plus.com/provider/services/cpafr-tg/public/createToken"
-DEFAULT_HODOR_URL = "https://hodor.canalplus.pro/api/v2/mycanal/page/463d215e5c2555ce704ede224689e9d8/107248.json"
+DEFAULT_HODOR_URL = "https://hodor.canalplus.pro/api/v2/mycanal/page/{tokenCMS}/107248.json"
 DEFAULT_PROFILES_URL = "https://hodor.canalplus.pro/api/v2/mycanal/me/Profiles"
 DEFAULT_COOKIE_FILE = "canal.txt"
 DEFAULT_HEADERS = {
@@ -26,6 +26,7 @@ DEFAULT_HEADERS = {
     "Referer": "https://www.canalplus.com/",
     "Origin": "https://www.canalplus.com",
 }
+
 
 
 def parse_args() -> argparse.Namespace:
@@ -40,17 +41,26 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def extract_pass_id(cookie_file: Path) -> str | None:
+def extract_cookie(cookie_file: Path, name: str) -> str | None:
     for raw_line in cookie_file.read_text(encoding="utf-8", errors="replace").splitlines():
         line = raw_line.strip()
         if line.startswith("#HttpOnly_"):
             line = line[len("#HttpOnly_"):]
         if not line or line.startswith("#"):
             continue
+
         fields = line.split("\t")
-        if len(fields) >= 7 and fields[5] == "passId":
+        if len(fields) >= 7 and fields[5] == name:
             return fields[6]
+
     return None
+
+
+def get_tokenCMS(raw: str | None) -> str | None:
+    if not raw:
+        return None
+    return raw.split(":", 1)[1] if ":" in raw else raw
+
 
 
 def extract_account_fields(body: Any) -> dict[str, str | None]:
@@ -89,12 +99,14 @@ def extract_profiles(body: Any) -> dict[str, Any]:
 def main() -> int:
     args = parse_args()
     try:
-        pass_id = extract_pass_id(args.cookie_file)
+        pass_id = extract_cookie(args.cookie_file, "passId")
+        token_cms_raw = extract_cookie(args.cookie_file, "tokenCMS")
+        token_cms = get_tokenCMS(token_cms_raw)
     except OSError as error:
         print(f"Erreur lecture cookies: {error}", file=sys.stderr)
         return 1
-    if not pass_id:
-        print(f"Erreur: cookie passId introuvable dans {args.cookie_file}", file=sys.stderr)
+    if not pass_id or not token_cms:
+        print("Erreur: cookie passId ou tokenCMS introuvable", file=sys.stderr)
         return 1
 
     try:
@@ -178,10 +190,13 @@ def main() -> int:
         "xx-operator": "pc",
         "xx-profile-id": "0",
         "tokenPass": pass_token,
+        
     }
+    hodor_url = args.hodor_url.format(tokenCMS=token_cms)
     try:
+        
         hodor_response = requests.get(
-            args.hodor_url,
+            hodor_url,
             params={"aegon": "true", "featureToggles": "detailLight"},
             headers=hodor_headers,
             timeout=args.timeout,

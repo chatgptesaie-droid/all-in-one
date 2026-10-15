@@ -31,6 +31,14 @@ from canal_fetch import (
     extract_profiles,
 )
 
+hodor_url = args.hodor_url.format(tokenCMS=token_cms)
+hodor_response = requests.get(
+    hodor_url,
+    params={"aegon": "true", "featureToggles": "detailLight"},
+    headers=hodor_headers,
+    timeout=args.timeout,
+)
+
 CONFIG_URL = "https://player.canalplus.com/one/configs/v2/13/mycanalafr/prod.json"
 
 
@@ -123,6 +131,29 @@ def run_combined(
         headers=auth_headers,
         params={"aegon": "true", "featureToggles": "detailLight"},
     )
+    logging.info("Hodor HTTP status: %d", hodor_response.status_code)
+    if not hodor_response.ok:
+        logging.warning("Hodor returned non-OK status %d", hodor_response.status_code)
+
+    # Sauvegarde de la réponse brute Hodor dans un fichier JSON
+    hodor_raw_path = output_dir / "hodor_response.json"
+    try:
+        with hodor_raw_path.open("w", encoding="utf-8") as _fp:
+            json.dump(
+                {
+                    "status": hodor_response.status_code,
+                    "url": str(hodor_response.url),
+                    "headers": dict(hodor_response.headers),
+                    "body": hodor_body,
+                },
+                _fp,
+                ensure_ascii=False,
+                indent=2,
+            )
+        logging.info("Hodor raw response saved to %s", hodor_raw_path)
+    except OSError as _e:
+        logging.warning("Could not save Hodor response to file: %s", _e)
+
     account_fields = extract_account_fields(hodor_body)
     logging.info("Hodor account fields extracted")
 
@@ -204,6 +235,7 @@ def main() -> int:
     print(f"  Profils ({profiles['profile_count']})       : {', '.join(profiles['profiles']) or '—'}")
     print("-" * 60)
     print(f"  Logs                 : {output_dir / 'canal_check.log'}")
+    print(f"  Hodor response       : {output_dir / 'hodor_response.json'}")
     print("  Aucun fichier HTML/JSON intermédiaire créé")
     print("=" * 60)
     return 0 if result["cookie_check"]["valid"] and result["http"]["hodor"] == 200 and result["http"]["profiles"] == 200 else 1

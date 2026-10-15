@@ -1,0 +1,42 @@
+{
+  "status": 404,
+  "url": "https://hodor.canalplus.pro/api/v2/mycanal/page/?aegon=true&featureToggles=detailLight#%20Netscape%20HTTP%20Cookie%20File%0A%23%20http://curl.haxx.se/rfc/cookie_spec.html%0A%23%20This%20file%20was%20generated%20by%20Cookie-Editor%0A.canalplus.com%09TRUE%09/%09FALSE%091791283956%09recommandations%09true%0A.canalplus.com%09TRUE%09/%09TRUE%091822730702%09profileId%090%0A.canalplus.com%09TRUE%09/%09FALSE%091806493847%09didomi_token%09eyJ1c2VyX2lkIjoiMWEwZWQwMGItYzZlZS02YTcwLTkwZTctNjFiZmZmMmVjNWY5IiwiY3JlYXRlZCI6IjIwMjYtMDktMjlUMTE6NTA6NDMuNTY2WiIsInVwZGF0ZWQiOiIyMDI2LTA5LTI5VDExOjUwOjQ3LjE3NVoiLCJ2ZW5kb3JzIjp7ImVuYWJsZWQiOlsiZ29vZ2xlIiwidHdpdHRlciIsImM6ZGlzY292ZXJ5LUNBUXRrZ3h3IiwiYzpvcGVuYWktN25kRmRyeGMiLCJjOnplbWFudGFpbi1EQ3hDZHh3dyIsImM6a3dvcmRzLVpuTmM4YVBCIiwiYzphbHRhcmVzLUJSM2RnZ3puIiwiYzpzdG9ubHktbnlFcko2NEgiLCJjOm1lZGlhYnktTks3Szg5cVciLCJjOnJva3Qtd3FBdEFaUmsiLCJjOmVjcmFubGFyZy1XM0M2eFVZaCIsImM6c2VyaWVvdXNseS1ZSHhNM0JSOCIsImM6bWF0Y2hlbmQtd2hYYVU4NGIiLCJjOnZpb3VzbHktVlpLZ2d4Q04iLCJjOm02cHVibGljaS14bmdHamtFeiIsImM6YWx0aWNlbWVkLVpDMnRBUXFVIiwiYzpmcmFuY2V0di1pUnBQRlkyUCIsImM6bWVldHJpY3NnLU5kRU44V3hUIiwiYzp0aWt0b2stWmtYUWhlQXIiLCJjOmxlcGFyaXNpZW4tZnJEamtlN0oiLCJjOm1ldGEtWDNxTGE0VGsiLCJjOnNuYXBjaGF0LXhhSHlwR0t3IiwiYzpzaG93cm9vbXAtMkhReWVZMkEiLCJjOmxlZmlnYXJvLWZXdFdZNDg4IiwiYzphbWF1cnltZWQtcW1KcDhaM3oiLCJjOmFkdmVyc3BvcnQtenRnQ1RZUloiLCJjOm91ZXN0ZnJhbi03RDZSNmlWWiIsImM6d2ViZWRpYS1LeExxWHJXRSIsImM6YWxsaWFuY2VnLUNoZEFkOUc4IiwiYzpldXJvc3BvcnQtRlpqVHFVVlEiLCJjOm9yYW5nZS1CRjhha0xoYSIsImM6cmV3b3JsZG1lLVVFV0RkYTZ4IiwiYzpob3J5em9ubWUtYnp3eDg3QmMiLCJjOjIwbWludXRlcy13Zmc4UVBYQyIsImM6bmV3Y29tbWUtUXJwZ0J0TnQiLCJjOnR3aXRjaC1LSmFNRkRlRCIsImM6bGlua2VkaW4td0VpbUFQeFYiLCJjOjM2Ni1HbU5rVmFwSiIsImM6Y2FyYWRpc2lhYy05eldpVUVMciIsImM6YWQzNjBtZWQtWExVTWJYcEoiLCJjOnVuaWZ5LWJaODdMRGdkIiwiYzptcHVibGljaXQtTTJZaEJWckYiLCJjOnNwb3J0bG9jYS03UmV4R25DZiIsImM6b25lZm9vdGJhLXo4VmRLeExmIiwiYzpsZXR1ZGlhbnQtNHFBNlBWWnciLCJjOm1vbnBldGl0LVJyWm1aalBDIiwiYzp0b25zc2VyLXdmTTZQdHluIiwiYzpzcG9ydGVhc3ktTGFreEVqY3ciLCJjOnZlZXBlZS1uRGNpVVhxciIsImM6c25jZmNvbm5lLXE4bU1uUEozIiwiYzpzZW5zY3JpdGktamhHbUVnYnkiLCJjOnpldGEtZmVYVHpkS2ciLCJjOmJydXQtUFhSQURyWTQiLCJjOmNvbnRlbnRzcXUtWEdaTVFjeWEiLCJjOmFidGFzdHktQ1pUVzIzcjMiLCJjOnJldGFpbGluay1ZcDZpNkczWiIsImM6YmV0YXNlcmllcy1nUGFHZVlZMyIsImM6dmVyaXpvbm1lLVBqYzlyRUdtIiwiYzpxd2FycnktVGVWZkhNTTYiLCJjOm1hbml0b2JhLTl4aGlQZEZHIiwiYzpwb3dlcnNwYWNlLXh5eXBSNGpOIiwiYzptaWNyb3NvZnQtRGNnQ3hXUWoiXX0sInB1cnBvc2VzIjp7ImVuYWJsZWQiOlsiYW5hbHl0aWNzIiwiYWR2ZXJ0aXNpbmciXX0sInZlcnNpb24iOjIsImFjIjoiQnlHQUdBRmtBOHdISVFBQS5BQUFBIn0=%0A.canalplus.com%09TRUE%09/%09FALSE%091806493847%09euconsent-v2%09CQrTfsAQrTfsAAHABBENCyFgAPLAAAAAAAqILPkB7CLMAWFgQTBEAIMECIAcxBAAqEAgBAIIgAAAABAAIIwAkGAAIAAAAAAKAAAAIAABAAAAAADAAAAAAAAAAABIAAAQABAAICAAAAARAAAACAABGQBAEAAQAAAAAAAAgAIAAAoAAEAAAAAAAQAAAAAAAIAAAAAAAAAgAAAAAAAAAiwACAAAAAAAAAAAAFgAEAAAAAAAAAAQAAAABAAAIAAAAAAAAAAAAAAAAAAAAAAACIAAAAgNfABANeAQQAAwABBnIYABgACDOQoADAAEGciwAGAAIM5DoAMAAQZyCQAYAAgzkSgAwABBnIpABgACDOQA.ILPkB7CLMAWFgQTBEAIMECIAcxBAAqEAgBAIIgAAAABAAIIwAkGAAIAAAAAAKAAAAIAABAAAAAAjAAAAAAAAAAABIAAAQABAAICAAAAARAAAACAABGQBAEAAQAAAAAAAAgAIAAAoAAEAAAAAAAQAAAAAAAIAAAAAAAAAgAAAAAAAAAiwACAAAAAAAAAAAAFgAEAAAAAAAAAAQAAAABAAAIAAAAAAAAAAAAAAAAAAAAAAACIAAAAg.flgAAAAAAAAA%0A.canalplus.com%09TRUE%09/%09TRUE%091806919493%09statsAllowed%09true%0A.canalplus.com%09TRUE%09/%09TRUE%091791199346%09sessionId%091791194692254-205a8616b5da%0A.canalplus.com%09TRUE%09/%09TRUE%091791198292%09abTestingPopulation%091%0A.canalplus.com%09TRUE%09/%09TRUE%091825322693%09deviceId%091790682644162-7e0474fb8396:1:1790682644162-4a77ab70650a%0A%23HttpOnly_www.canalplus.com%09FALSE%09/%09TRUE%091791283956%09hodorKey%09164e8fbed8-990175303%0A.canalplus.com%09TRUE%09/%09TRUE%091793786702%09tokenCMS%0919da938adbc5b2e6bc5632d81d317cc7%0A.canalplus.com%09TRUE%09/%09FALSE%091824378654%09segment%09%0A.canalplus.com%09TRUE%09/%09TRUE%091825754691%09p_pass_token%09CI=AAAAECPdGW0wVe/luWetjIi4M/zehM88br8ZPBXNQuofVQp2s8MgE77WIhnc5AJ54XitV5j40JD38HxYSqgSdch3K8vVGt8GCKjAEbn1bhO7DHG0P26S3QTdz0E7kqBxFCz9GXmeD/m+ebQ/+BkiELD4eNe35CSxJfMC+LPFDfQAseZ7%0A.canalplus.com%09TRUE%09/%09TRUE%091806919493%09adsAllowed%09true%0Awww.canalplus.com%09FALSE%09/%09TRUE%091791283956%09akacd_Blue_Green_SPA%093968480120~rv=40~id=2b7cc1c76f097e67f29ae533111d6127%0A.canalplus.com%09TRUE%09/%09TRUE%091806919493%09anonymousAllowed%09true%0A.canalplus.com%09TRUE%09/%09TRUE%091822730702%09isKidsProfile%09false%0A.canalplus.com%09TRUE%09/%09TRUE%091825754691%09passId%09CI=AAAAECPdGW0wVe/luWetjIi4M/zehM88br8ZPBXNQuofVQp2s8MgE77WIhnc5AJ54XitV5j40JD38HxYSqgSdch3K8vVGt8GCKjAEbn1bhO7DHG0P26S3QTdz0E7kqBxFCz9GXmeD/m+ebQ/+BkiELD4eNe35CSxJfMC+LPFDfQAseZ7%0Awww.canalplus.com%09FALSE%09/tg%09FALSE%091791283956%09split_cookie%09%0A.canalplus.com%09TRUE%09/%09TRUE%091791199346%09whoIsWatchingSession.101482628%09true%0Awww.canalplus.com%09FALSE%09/%09TRUE%091791283956%09zone%09tg/107248.json",
+  "headers": {
+    "Content-Type": "application/json; charset=utf-8",
+    "Content-Length": "691",
+    "X-Frame-Options": "SAMEORIGIN",
+    "Referrer-Policy": "origin",
+    "X-Content-Type-Options": "nosniff",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Credentials": "true",
+    "X-Unique-Id": "d9b26d99-510c-4022-85a8-6e74119a3e04",
+    "Date": "Mon, 05 Oct 2026 11:30:45 GMT",
+    "Connection": "keep-alive",
+    "Alt-Svc": "h3=\":443\"; ma=93600",
+    "Set-Cookie": "akacd_Blue_Green_Hodor_PROD_v2=3968652644~rv=62~id=6d19e89345f0265edeca77e572ddc3ce; path=/; Secure; SameSite=None"
+  },
+  "body": {
+    "currentPage": {
+      "displayTemplate": "error",
+      "displayName": "Page introuvable",
+      "path": "/erreur",
+      "BOName": "Page introuvable",
+      "BOLayoutName": "Erreur 404"
+    },
+    "title": "Page introuvable",
+    "text": "La page que vous demandez est introuvable. Si le problème persiste, vous pouvez contacter l'assistance.",
+    "code": 404,
+    "tracking": {
+      "dataLayer": {
+        "error_message": "La page que vous demandez est introuvable. Si le problème persiste, vous pouvez contacter l'assistance.",
+        "page_level_1": "error",
+        "page_level_2": "Page introuvable - notFound",
+        "page_name": "error - Page introuvable - notFound",
+        "page_title": "Page introuvable",
+        "page_display_title": "Page introuvable",
+        "page_type": "errorPage",
+        "user_profile": "Consumer"
+      }
+    }
+  }
+}

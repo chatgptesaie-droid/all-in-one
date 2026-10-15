@@ -1,0 +1,23 @@
+{
+  "cookie_1": {
+    "email": "marielavigne232@gmail.com",
+    "name": "claude somon",
+    "uuid": "5e4d5cea-6697-483a-9609-2361f23e0898",
+    "plan": "PRO",
+    "rate_upsell": "—",
+    "org_name": "claude’s Individual Org",
+    "org_id": "d698cd66-9356-48d2-88d1-38df8490e7ac",
+    "features": [
+      "chat",
+      "web_search",
+      "geolocation",
+      "saffron",
+      "wiggle",
+      "skills",
+      "mcp_artifacts",
+      "inline_visualizations",
+      "haystack",
+      "interactive_content"
+    ]
+  }
+}

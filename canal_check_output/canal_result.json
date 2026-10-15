@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-10-05T11:52:02.880611+00:00",
+  "cookie_file": "canal.txt",
+  "url_tested": "https://www.canalplus.com/tg/moncompte",
+  "final_url": "https://www.canalplus.com/tg/moncompte",
+  "status_code": 200,
+  "valid": true,
+  "redirect_count": 0,
+  "parsed_cookie_count": 18,
+  "canal_cookie_count": 18,
+  "injected_cookie_count": 18,
+  "html_length": 125195,
+  "response_html_file": "canal_check_output\\canal_page.html",
+  "log_file": "canal_check_output\\canal_check.log",
+  "account": {
+    "page_title": "Mon compte",
+    "is_account_page": true,
+    "who_is_watching": false,
+    "account_id": "101482628",
+    "nom": null,
+    "offre": null,
+    "num_reabo": null,
+    "echeance": null,
+    "phone": null,
+    "offer_zone": "ACC,O_ABO,PTG,TCNL,EVA,TCNLRW,ACCP",
+    "eligibility": "ACCESS_CRITERIA:[-1],ALD_CNL:[-1],ALD_CS:[RABM,RG24,RNJU,RCS3,RMBK,RCUI,RAPI,RCPD,RCS5,RFR5,RCPA,RSEC,R2ST,RMTV,RSUY,RTLT,RCNW,RPWI,RGUM,RSTV,REQN,RCLA,RCS4,RRTL,RCFA,RNTE,RNTV,RTUR,RCCA,RNTN,RZEM,RCS2,RTRK,RCEA,RTJI,RCAA,RCST,RNOV,RMEL,RMUS,RPLCI,RMZZ,RPLAE,RAPA,RCS1,RPLA,RGUA,RACT,RCN2,RCN2M,RZAC,RM6I,RLIF,R7INF,RRTI,RRTI2,RLA3,RMGA,RAB1,RTLH,RAPB,RITV,RRTS1,RRTS2,RGB1,RTFM,RORT,RC3B,RTVC,RBOS,RMIK,REDN,RALU,RLUD,RBAL,RTNC,RMAD,RANT,RDIG,RMLK,RHRI,RFR24,RLGF,RPLG,RMDK,RTV5A,RTVI5,RINF,RNICA,RTVT,RMDIA,RKLAC,RKBAC,RRTG1,RRTG2,RSOS,RTV7,RONTV,RFSHN,RORTM,RTM1,RNVO,RJLBA,RKYFO,RCHFL,RSFY,R13R,RENT,RBOO,RCNE,RCTO,RCPK,RTV10,RGBA,RPABO,RDIS,RIDI,RGBL,RCPSO,RBF1,RBBCE,RTCHA],ALD_TVGRAT:[-1],APP_PARTNER:[3W,3W_1,3W_2,3W_3],CATCHUP:[-1],CPALD_AFR:[-1],CPALD_MUS:[-1],CPL_INF:[-1],L_GRAT:[-1],MYCANAL:[RMC_TV,RMC_D2G,RMC_DEV5,RMC_FLX1,FLX_DSTV1],OFFER:[ACC,O_ABO,PTG,TCNL,EVA,TCNLRW,ACCP],PARTNER:[-1],PRESSE:[-1],VOD:[],V_GRAT:[-1]"
+  }
+}
